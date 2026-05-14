@@ -3,677 +3,457 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Box Members — WOD Tracker</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Log Your Score — CrossFit Amstetten</title>
 <style>
-  :root {
-    --bg: #0f0f0f;
-    --surface: #1a1a1a;
-    --surface2: #222222;
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.15);
-    --accent: #e8c840;
-    --accent2: #c9a820;
-    --text: #f0ede8;
-    --muted: #888880;
-    --danger: #e85540;
-    --success: #4caf7d;
-    --radius: 10px;
-    --font-display: 'Bebas Neue', sans-serif;
-    --font-body: 'DM Sans', sans-serif;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; font-size: 15px; line-height: 1.6; }
-
-  /* LAYOUT */
-  .app { display: flex; flex-direction: column; min-height: 100vh; }
-  .screen { display: none; flex-direction: column; min-height: 100vh; }
-  .screen.active { display: flex; }
-
-  /* NAV */
-  nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
-  .nav-logo { font-family: var(--font-display); font-size: 26px; letter-spacing: 2px; color: var(--accent); }
-  .nav-user { display: flex; align-items: center; gap: 12px; }
-  .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; color: #000; flex-shrink: 0; }
-  .nav-name { font-size: 14px; color: var(--muted); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .btn-logout { background: none; border: 1px solid var(--border2); color: var(--muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: var(--font-body); }
-  .btn-logout:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* AUTH SCREEN */
-  .auth-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
-  .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem 2rem; width: 100%; max-width: 420px; }
-  .auth-title { font-family: var(--font-display); font-size: 42px; letter-spacing: 3px; color: var(--accent); margin-bottom: 0.25rem; }
-  .auth-sub { color: var(--muted); font-size: 14px; margin-bottom: 2rem; }
-  .tab-row { display: flex; gap: 4px; margin-bottom: 2rem; background: var(--bg); border-radius: 8px; padding: 4px; }
-  .tab-btn { flex: 1; padding: 8px; background: none; border: none; color: var(--muted); font-family: var(--font-body); font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 6px; }
-  .tab-btn.active { background: var(--accent); color: #000; }
-  label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; margin-top: 1rem; }
-  input, select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border2); color: var(--text); padding: 10px 14px; border-radius: 8px; font-family: var(--font-body); font-size: 15px; outline: none; }
-  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
-  select option { background: var(--surface); }
-  textarea { resize: vertical; min-height: 80px; }
-  .btn-primary { width: 100%; margin-top: 1.5rem; background: var(--accent); color: #000; border: none; padding: 13px; border-radius: 8px; font-family: var(--font-body); font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 0.5px; }
-  .btn-primary:hover { background: var(--accent2); }
-  .msg { margin-top: 1rem; font-size: 13px; text-align: center; padding: 8px; border-radius: 6px; }
-  .msg.error { background: rgba(232,85,64,0.15); color: var(--danger); }
-  .msg.success { background: rgba(76,175,125,0.15); color: var(--success); }
-
-  /* MAIN APP */
-  .main-content { flex: 1; max-width: 900px; width: 100%; margin: 0 auto; padding: 2rem 1.5rem; }
-
-  /* BOTTOM NAV (mobile) */
-  .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 8px 0 12px; z-index: 100; }
-  .bottom-nav-inner { display: flex; justify-content: space-around; }
-  .bnav-btn { background: none; border: none; color: var(--muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px; font-family: var(--font-body); padding: 4px 16px; }
-  .bnav-btn.active { color: var(--accent); }
-  .bnav-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-
-  /* TOP NAV TABS (desktop) */
-  .desk-nav { display: flex; gap: 4px; margin-bottom: 2rem; background: var(--surface); border-radius: 10px; padding: 6px; }
-  .desk-tab { flex: 1; background: none; border: none; color: var(--muted); font-family: var(--font-body); font-size: 14px; font-weight: 500; padding: 10px; cursor: pointer; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 7px; }
-  .desk-tab.active { background: var(--accent); color: #000; }
-  .desk-tab svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-
-  /* VIEWS */
-  .view { display: none; }
-  .view.active { display: block; }
-
-  /* CARDS */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
-  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-  .card-title { font-family: var(--font-display); font-size: 22px; letter-spacing: 1px; }
-  .section-title { font-family: var(--font-display); font-size: 28px; letter-spacing: 2px; color: var(--accent); margin-bottom: 1.5rem; }
-
-  /* WORKOUT LIST */
-  .wod-list { display: grid; gap: 10px; }
-  .wod-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; cursor: pointer; transition: border-color 0.15s; }
-  .wod-card:hover { border-color: var(--accent); }
-  .wod-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-  .wod-name { font-family: var(--font-display); font-size: 22px; letter-spacing: 1px; }
-  .wod-type { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 4px; background: rgba(232,200,64,0.12); color: var(--accent); }
-  .wod-desc { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
-  .wod-pr { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; }
-  .pr-label { color: var(--muted); }
-  .pr-val { font-weight: 600; color: var(--accent); }
-  .pr-date { color: var(--muted); font-size: 12px; }
-
-  /* SCORE MODAL OVERLAY */
-  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
-  .overlay.open { display: flex; }
-  .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 16px; padding: 2rem; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-  .modal-title { font-family: var(--font-display); font-size: 30px; letter-spacing: 2px; color: var(--accent); margin-bottom: 0.5rem; }
-  .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.5; }
-  .modal-section { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 1.25rem 0 0.75rem; }
-  .score-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
-  .score-row { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
-  .score-val { font-weight: 600; font-size: 15px; }
-  .score-info { font-size: 12px; color: var(--muted); }
-  .score-note { font-size: 12px; color: var(--muted); font-style: italic; }
-  .btn-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 22px; line-height: 1; padding: 4px; }
-  .btn-close:hover { color: var(--text); }
-  .btn-sm { background: none; border: 1px solid var(--border2); color: var(--muted); padding: 7px 14px; border-radius: 6px; font-family: var(--font-body); font-size: 13px; cursor: pointer; }
-  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-danger { border-color: rgba(232,85,64,0.4); color: var(--danger); }
-  .btn-danger:hover { border-color: var(--danger); }
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-  /* SEARCH */
-  .search-wrap { position: relative; margin-bottom: 1.25rem; }
-  .search-wrap input { padding-left: 40px; }
-  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
-  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.25rem; }
-  .filter-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; font-family: var(--font-body); }
-  .filter-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
-
-  /* PROFILE */
-  .profile-hero { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 2rem; }
-  .profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 22px; color: #000; flex-shrink: 0; }
-  .profile-name { font-family: var(--font-display); font-size: 34px; letter-spacing: 2px; }
-  .profile-since { font-size: 13px; color: var(--muted); }
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 2rem; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; text-align: center; }
-  .stat-val { font-family: var(--font-display); font-size: 32px; color: var(--accent); }
-  .stat-lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
-
-  /* EMPTY STATE */
-  .empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
-  .empty svg { width: 48px; height: 48px; margin: 0 auto 1rem; display: block; stroke: var(--border2); fill: none; stroke-width: 1.5; }
-
-  /* CUSTOM WORKOUT FORM */
-  .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; }
-
-  /* RESPONSIVE */
-  @media (max-width: 640px) {
-    .main-content { padding: 1rem 1rem 80px; }
-    .desk-nav { display: none; }
-    .bottom-nav { display: block; }
-    .row2 { grid-template-columns: 1fr; }
-    .auth-card { padding: 2rem 1.25rem; }
-    nav .nav-name { display: none; }
-  }
-  @media (min-width: 641px) {
-    .bottom-nav { display: none; }
-    .desk-nav { display: flex; }
-  }
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+:root{--bg:#0f0f0f;--s:#1a1a1a;--b:rgba(255,255,255,.08);--b2:rgba(255,255,255,.15);--a:#e8c840;--a2:#c9a820;--t:#f0ede8;--m:#888880;--d:#e85540;--ok:#4caf7d;--r:10px;--fd:'Bebas Neue',sans-serif;--fb:'DM Sans',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--t);font-family:var(--fb);font-size:15px;line-height:1.6;min-height:100vh;}
+.sc{display:none;flex-direction:column;min-height:100vh;}.sc.on{display:flex;}
+nav{background:var(--s);border-bottom:1px solid var(--b);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:100;}
+.logo{font-family:var(--fd);font-size:26px;letter-spacing:2px;color:var(--a);}
+.nu{display:flex;align-items:center;gap:10px;}
+.av{width:34px;height:34px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;color:#000;flex-shrink:0;}
+.nn{font-size:13px;color:var(--m);}
+.blo{background:none;border:1px solid var(--b2);color:var(--m);padding:5px 11px;border-radius:6px;cursor:pointer;font-size:12px;font-family:var(--fb);}
+.blo:hover{border-color:var(--a);color:var(--a);}
+.aw{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;}
+.ac{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:2.25rem 2rem;width:100%;max-width:410px;}
+.at{font-family:var(--fd);font-size:40px;letter-spacing:3px;color:var(--a);margin-bottom:.2rem;}
+.as{color:var(--m);font-size:13px;margin-bottom:1.5rem;}
+.tr{display:flex;gap:4px;margin-bottom:1.5rem;background:var(--bg);border-radius:8px;padding:4px;}
+.tb{flex:1;padding:7px;background:none;border:none;color:var(--m);font-family:var(--fb);font-size:13px;font-weight:500;cursor:pointer;border-radius:6px;}
+.tb.on{background:var(--a);color:#000;}
+label{display:block;font-size:11px;font-weight:500;color:var(--m);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;margin-top:.9rem;}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--b2);color:var(--t);padding:10px 13px;border-radius:7px;font-family:var(--fb);font-size:14px;outline:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--a);}
+select option{background:#1a1a1a;}
+textarea{resize:vertical;min-height:70px;}
+.bp{width:100%;margin-top:1.25rem;background:var(--a);color:#000;border:none;padding:12px;border-radius:8px;font-family:var(--fb);font-size:15px;font-weight:600;cursor:pointer;}
+.bp:hover{background:var(--a2);}
+.msg{margin-top:.75rem;font-size:12px;text-align:center;padding:7px;border-radius:6px;}
+.msg.err{background:rgba(232,85,64,.15);color:var(--d);}
+.msg.ok{background:rgba(76,175,125,.15);color:var(--ok);}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mc{flex:1;max-width:920px;width:100%;margin:0 auto;padding:1.75rem 1.5rem;}
+.dn{display:flex;gap:4px;margin-bottom:1.5rem;background:var(--s);border-radius:10px;padding:5px;}
+.dt{flex:1;background:none;border:none;color:var(--m);font-family:var(--fb);font-size:13px;font-weight:500;padding:9px 4px;cursor:pointer;border-radius:7px;}
+.dt.on{background:var(--a);color:#000;}
+.vi{display:none;}.vi.on{display:block;}
+.st{font-family:var(--fd);font-size:28px;letter-spacing:2px;color:var(--a);margin-bottom:1.25rem;}
+.wl{display:grid;gap:9px;}
+.wc{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:.95rem 1.15rem;cursor:pointer;transition:border-color .15s;}
+.wc:hover{border-color:var(--a);}
+.wt{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.wn{font-family:var(--fd);font-size:20px;letter-spacing:1px;}
+.wb{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;}
+.bo{background:rgba(232,200,64,.15);color:var(--a);border:1px solid rgba(232,200,64,.3);}
+.bd{background:rgba(255,255,255,.06);color:var(--m);}
+.wca{font-size:10px;color:var(--m);margin-top:2px;}
+.wd{font-size:12px;color:var(--m);margin-top:5px;line-height:1.5;}
+.wp{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;}
+.pl{color:var(--m);}.pv{font-weight:600;color:var(--a);}.pd{color:var(--m);font-size:11px;}
+.sw{position:relative;margin-bottom:1rem;}
+.sw input{padding-left:38px;}
+.si{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--m);pointer-events:none;width:16px;height:16px;}
+.fr{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
+.fb{background:none;border:1px solid var(--b);color:var(--m);padding:5px 13px;border-radius:20px;cursor:pointer;font-size:12px;font-family:var(--fb);}
+.fb:hover{border-color:var(--b2);color:var(--t);}
+.fb.on{background:var(--a);color:#000;border-color:var(--a);}
+.yf{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem;padding:10px 12px;background:rgba(232,200,64,.06);border:1px solid rgba(232,200,64,.2);border-radius:8px;}
+.yb{background:none;border:1px solid rgba(232,200,64,.25);color:var(--m);padding:4px 10px;border-radius:14px;cursor:pointer;font-size:11px;font-family:var(--fb);}
+.yb:hover{border-color:var(--a);color:var(--a);}
+.yb.on{background:var(--a);color:#000;border-color:var(--a);}
+.yl{font-size:11px;color:var(--a);font-weight:600;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;margin-right:4px;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto;}
+.overlay.on{display:flex;}
+.mo{background:var(--s);border:1px solid var(--b2);border-radius:14px;padding:1.75rem;width:100%;max-width:480px;margin-top:1rem;}
+.mt{font-family:var(--fd);font-size:26px;letter-spacing:2px;color:var(--a);margin-bottom:.3rem;}
+.ms{font-size:12px;color:var(--m);margin-bottom:1.25rem;line-height:1.5;}
+.ms2{font-size:11px;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:1px;margin:1rem 0 .6rem;}
+.sl{display:flex;flex-direction:column;gap:7px;}
+.sr{background:var(--bg);border:1px solid var(--b);border-radius:7px;padding:9px 13px;display:flex;align-items:center;justify-content:space-between;}
+.sv{font-weight:600;font-size:14px;}.si2{font-size:11px;color:var(--m);}
+.bc{background:none;border:none;color:var(--m);cursor:pointer;font-size:20px;line-height:1;padding:2px;}
+.bs{background:none;border:1px solid var(--b2);color:var(--m);padding:5px 10px;border-radius:5px;font-family:var(--fb);font-size:12px;cursor:pointer;}
+.bs.bsd{border-color:rgba(232,85,64,.4);color:var(--d);}
+.ph{display:flex;align-items:center;gap:1.1rem;margin-bottom:1.5rem;}
+.pa{width:60px;height:60px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;color:#000;flex-shrink:0;}
+.pn{font-family:var(--fd);font-size:32px;letter-spacing:2px;}
+.ps{font-size:12px;color:var(--m);}
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:1.5rem;}
+.sk{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:.9rem;text-align:center;}
+.sv2{font-family:var(--fd);font-size:30px;color:var(--a);}
+.sl2{font-size:11px;color:var(--m);text-transform:uppercase;letter-spacing:.5px;}
+.em{text-align:center;padding:2.5rem 1rem;color:var(--m);font-size:13px;}
+.fc{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:1.35rem;margin-bottom:1.25rem;}
+@media(max-width:640px){.mc{padding:1rem 1rem 1rem;}.dn{position:fixed;bottom:0;left:0;right:0;border-radius:0;border-top:1px solid var(--b);padding:6px 8px 10px;z-index:100;}.mc{padding-bottom:80px;}.dt{font-size:11px;}.nn{display:none;}}
 </style>
 </head>
 <body>
-<div class="app">
 
-<!-- AUTH SCREEN -->
-<div class="screen active" id="screen-auth">
-  <div class="auth-wrap">
-    <div class="auth-card">
-      <div class="auth-title">BOX DB</div>
-      <div class="auth-sub">Mitglieder & WOD Score Tracker</div>
-      <div class="tab-row">
-        <button class="tab-btn active" onclick="showAuthTab('login')">Anmelden</button>
-        <button class="tab-btn" onclick="showAuthTab('register')">Registrieren</button>
+<!-- AUTH -->
+<div class="sc on" id="sa">
+  <div class="aw">
+    <div class="ac">
+      <div class="at">BOX DB</div>
+      <div class="as">CrossFit Amstetten — WOD Score Tracker</div>
+      <div class="tr">
+        <button class="tb on" onclick="sat('login')">Anmelden</button>
+        <button class="tb" onclick="sat('reg')">Registrieren</button>
       </div>
-      <div id="auth-login">
-        <label>E-Mail</label>
-        <input type="email" id="login-email" placeholder="deine@email.com" />
-        <label>Passwort</label>
-        <input type="password" id="login-pw" placeholder="••••••••" />
-        <button class="btn-primary" onclick="doLogin()">Einloggen</button>
+      <div id="alog">
+        <label>E-Mail</label><input type="email" id="le" placeholder="deine@email.com" autocomplete="email"/>
+        <label>Passwort</label><input type="password" id="lp" placeholder="••••••••" autocomplete="current-password"/>
+        <button class="bp" onclick="dol()">Einloggen</button>
       </div>
-      <div id="auth-register" style="display:none">
-        <div class="row2">
-          <div><label>Vorname</label><input type="text" id="reg-first" placeholder="Max" /></div>
-          <div><label>Nachname</label><input type="text" id="reg-last" placeholder="Mustermann" /></div>
+      <div id="areg" style="display:none">
+        <div class="r2">
+          <div><label>Vorname</label><input type="text" id="rf" placeholder="Max"/></div>
+          <div><label>Nachname</label><input type="text" id="rl" placeholder="Mustermann"/></div>
         </div>
-        <label>E-Mail</label>
-        <input type="email" id="reg-email" placeholder="deine@email.com" />
-        <label>Passwort</label>
-        <input type="password" id="reg-pw" placeholder="Mindestens 6 Zeichen" />
-        <label>Box / Gym Name (optional)</label>
-        <input type="text" id="reg-box" placeholder="z.B. CrossFit Vienna" />
-        <button class="btn-primary" onclick="doRegister()">Konto erstellen</button>
+        <label>E-Mail</label><input type="email" id="re" placeholder="deine@email.com"/>
+        <label>Passwort</label><input type="password" id="rp" placeholder="Mind. 6 Zeichen"/>
+        <label>Box / Gym (optional)</label><input type="text" id="rb" placeholder="CrossFit Amstetten"/>
+        <button class="bp" onclick="dor()">Konto erstellen</button>
       </div>
-      <div id="auth-msg"></div>
+      <div id="am"></div>
     </div>
   </div>
 </div>
 
-<!-- MAIN APP SCREEN -->
-<div class="screen" id="screen-app">
+<!-- APP -->
+<div class="sc" id="sapp">
   <nav>
-    <div class="nav-logo">BOX DB</div>
-    <div class="nav-user">
-      <div class="avatar" id="nav-avatar">?</div>
-      <span class="nav-name" id="nav-name">–</span>
-      <button class="btn-logout" onclick="doLogout()">Logout</button>
+    <div class="logo">BOX DB</div>
+    <div class="nu">
+      <div class="av" id="navav"></div>
+      <span class="nn" id="navnm">–</span>
+      <button class="blo" onclick="dout()">Logout</button>
     </div>
   </nav>
-
-  <div class="main-content">
-    <!-- DESKTOP TABS -->
-    <div class="desk-nav">
-      <button class="desk-tab active" data-view="benchmarks" onclick="switchView('benchmarks')">
-        <svg viewBox="0 0 24 24"><path d="M3 17l4-8 4 4 4-6 4 10"/></svg>Benchmarks
-      </button>
-      <button class="desk-tab" data-view="custom" onclick="switchView('custom')">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>Eigene WODs
-      </button>
-      <button class="desk-tab" data-view="add" onclick="switchView('add')">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>WOD anlegen
-      </button>
-      <button class="desk-tab" data-view="profile" onclick="switchView('profile')">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profil
-      </button>
+  <div class="mc">
+    <div class="dn">
+      <button class="dt on" data-v="bm" onclick="sv('bm')">📊 Benchmarks</button>
+      <button class="dt" data-v="cw" onclick="sv('cw')">⏱ Eigene</button>
+      <button class="dt" data-v="add" onclick="sv('add')">➕ Anlegen</button>
+      <button class="dt" data-v="pr" onclick="sv('pr')">👤 Profil</button>
     </div>
 
-    <!-- BENCHMARKS VIEW -->
-    <div class="view active" id="view-benchmarks">
-      <div class="section-title">Benchmark WODs</div>
-      <div class="search-wrap">
-        <svg class="search-icon" width="17" height="17" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" id="bench-search" placeholder="WOD suchen…" oninput="renderBenchmarks()" />
+    <!-- BENCHMARKS -->
+    <div class="vi on" id="vbm">
+      <div class="st">Benchmark WODs</div>
+      <div class="sw">
+        <svg class="si" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="bsq" placeholder="WOD suchen…" oninput="rb()"/>
       </div>
-      <div class="filter-row" id="bench-filters"></div>
-      <div class="wod-list" id="bench-list"></div>
+      <div class="fr" id="bfr"></div>
+      <div id="yfw" style="display:none"><div class="yf" id="yf"></div></div>
+      <div class="wl" id="bl"></div>
     </div>
 
-    <!-- CUSTOM WORKOUTS VIEW -->
-    <div class="view" id="view-custom">
-      <div class="section-title">Eigene Workouts</div>
-      <div class="wod-list" id="custom-list"></div>
+    <!-- EIGENE -->
+    <div class="vi" id="vcw">
+      <div class="st">Eigene Workouts</div>
+      <div class="wl" id="cl"></div>
     </div>
 
-    <!-- ADD WOD VIEW -->
-    <div class="view" id="view-add">
-      <div class="section-title">Workout anlegen</div>
-      <div class="form-card">
-        <label>Name des Workouts</label>
-        <input type="text" id="wod-name" placeholder="z.B. Friday Fran, My Hero…" />
+    <!-- ANLEGEN -->
+    <div class="vi" id="vadd">
+      <div class="st">Workout anlegen</div>
+      <div class="fc">
+        <label>Name</label><input type="text" id="wna" placeholder="z.B. Friday Fran…"/>
         <label>Typ</label>
-        <select id="wod-wtype">
-          <option value="For Time">For Time</option>
-          <option value="AMRAP">AMRAP</option>
-          <option value="EMOM">EMOM</option>
-          <option value="Max Load">Max Load (1RM/3RM…)</option>
-          <option value="Reps">Max Reps</option>
-          <option value="Sonstige">Sonstige</option>
-        </select>
-        <label>Beschreibung / Bewegungen</label>
-        <textarea id="wod-desc" placeholder="z.B. 21-15-9&#10;Thrusters (42.5/30 kg)&#10;Pull-ups"></textarea>
+        <select id="wty"><option>For Time</option><option>AMRAP</option><option>EMOM</option><option>Max Load</option><option>Max Reps</option><option>Sonstige</option></select>
+        <label>Beschreibung</label>
+        <textarea id="wde" placeholder="21-15-9&#10;Thrusters&#10;Pull-ups"></textarea>
         <label>Score-Einheit</label>
-        <select id="wod-unit">
-          <option value="Zeit (mm:ss)">Zeit (mm:ss)</option>
-          <option value="Runden + Reps">Runden + Reps</option>
-          <option value="kg">kg (Gewicht)</option>
-          <option value="Wiederholungen">Wiederholungen</option>
-          <option value="Punkte">Punkte</option>
-          <option value="Meter">Meter</option>
-        </select>
-        <button class="btn-primary" onclick="saveCustomWOD()">Workout speichern</button>
-        <div id="add-msg"></div>
+        <select id="wun"><option>Zeit (mm:ss)</option><option>Runden + Reps</option><option>kg</option><option>Wiederholungen</option><option>Punkte</option></select>
+        <button class="bp" onclick="scw()">Workout speichern</button>
+        <div id="addm"></div>
       </div>
     </div>
 
-    <!-- PROFILE VIEW -->
-    <div class="view" id="view-profile">
-      <div class="profile-hero">
-        <div class="profile-avatar" id="profile-avatar">?</div>
+    <!-- PROFIL -->
+    <div class="vi" id="vpr">
+      <div class="ph">
+        <div class="pa" id="pav"></div>
         <div>
-          <div class="profile-name" id="profile-name">–</div>
-          <div class="profile-since" id="profile-since"></div>
+          <div class="pn" id="pnm">–</div>
+          <div class="ps" id="psi"></div>
         </div>
       </div>
-      <div class="stats-grid" id="profile-stats"></div>
-      <div class="section-title" style="font-size:22px;margin-bottom:1rem;">Letzte Scores</div>
-      <div id="profile-recent"></div>
+      <div class="sg" id="pst"></div>
+      <div class="st" style="font-size:22px;margin-bottom:.75rem;">Letzte Scores</div>
+      <div id="prec"></div>
     </div>
   </div>
 
-  <!-- BOTTOM NAV (mobile) -->
-  <div class="bottom-nav">
-    <div class="bottom-nav-inner">
-      <button class="bnav-btn active" data-view="benchmarks" onclick="switchView('benchmarks')">
-        <svg viewBox="0 0 24 24"><path d="M3 17l4-8 4 4 4-6 4 10"/></svg>Benchmarks
-      </button>
-      <button class="bnav-btn" data-view="custom" onclick="switchView('custom')">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>Eigene
-      </button>
-      <button class="bnav-btn" data-view="add" onclick="switchView('add')">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Anlegen
-      </button>
-      <button class="bnav-btn" data-view="profile" onclick="switchView('profile')">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profil
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- SCORE MODAL -->
-<div class="overlay" id="score-overlay" onclick="closeScoreModal(event)">
-  <div class="modal" id="score-modal">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
-      <div>
-        <div class="modal-title" id="modal-wod-name">–</div>
-        <div class="modal-sub" id="modal-wod-desc">–</div>
+  <!-- SCORE MODAL -->
+  <div class="overlay" id="sov" onclick="csm(event)">
+    <div class="mo">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
+        <div><div class="mt" id="mwn">–</div><div class="ms" id="mwd">–</div></div>
+        <button class="bc" onclick="csm(null,true)">✕</button>
       </div>
-      <button class="btn-close" onclick="closeScoreModal(null, true)">✕</button>
-    </div>
-
-    <div class="modal-section">Neuen Score eintragen</div>
-    <div id="score-form-fields">
-      <div class="row2">
-        <div>
-          <label id="score-label">Score</label>
-          <input type="text" id="score-val-input" placeholder="z.B. 12:34" />
-        </div>
-        <div>
-          <label>Datum</label>
-          <input type="date" id="score-date-input" />
-        </div>
+      <div class="ms2">Neuen Score eintragen</div>
+      <div class="r2">
+        <div><label id="scl">Score</label><input type="text" id="svi"/></div>
+        <div><label>Datum</label><input type="date" id="sdi"/></div>
       </div>
       <label>Notizen (optional)</label>
-      <input type="text" id="score-note-input" placeholder="z.B. RX, scaled, Verletzung…" />
-      <button class="btn-primary" onclick="saveScore()">Score speichern</button>
-      <div id="score-msg"></div>
+      <input type="text" id="sni" placeholder="z.B. RX, scaled, PR…"/>
+      <button class="bp" onclick="ss()">Score speichern</button>
+      <div id="smsg"></div>
+      <div class="ms2">Meine Scores</div>
+      <div class="sl" id="msl"></div>
     </div>
-
-    <div class="modal-section">Meine Scores</div>
-    <div class="score-list" id="modal-score-list"></div>
   </div>
 </div>
 
 <script>
-const STORAGE_KEY = 'boxdb_v2';
-let DB = { users: {}, scores: {} };
-let currentUser = null;
-let currentWOD = null;
+const SK='boxdb_v2';
+let DB={users:{},scores:{}},CU=null,CW=null,AC='Alle',AY='Alle';
 
-// BENCHMARK WORKOUTS (classic CrossFit)
-const BENCHMARKS = [
-  { id: 'fran', name: 'FRAN', type: 'For Time', category: 'Girl',
-    desc: '21-15-9 Reps\nThrusters (42.5/30 kg)\nPull-ups', unit: 'Zeit (mm:ss)' },
-  { id: 'helen', name: 'HELEN', type: 'For Time', category: 'Girl',
-    desc: '3 Rounds\n400m Run\n21 Kettlebell Swings (24/16 kg)\n12 Pull-ups', unit: 'Zeit (mm:ss)' },
-  { id: 'cindy', name: 'CINDY', type: 'AMRAP', category: 'Girl',
-    desc: '20 min AMRAP\n5 Pull-ups\n10 Push-ups\n15 Air Squats', unit: 'Runden + Reps' },
-  { id: 'angie', name: 'ANGIE', type: 'For Time', category: 'Girl',
-    desc: '100 Pull-ups\n100 Push-ups\n100 Sit-ups\n100 Air Squats', unit: 'Zeit (mm:ss)' },
-  { id: 'barbara', name: 'BARBARA', type: 'For Time', category: 'Girl',
-    desc: '5 Rounds, rest 3 min between:\n20 Pull-ups\n30 Push-ups\n40 Sit-ups\n50 Air Squats', unit: 'Zeit (mm:ss)' },
-  { id: 'chelsea', name: 'CHELSEA', type: 'EMOM', category: 'Girl',
-    desc: '30 min EMOM\n5 Pull-ups\n10 Push-ups\n15 Air Squats', unit: 'Runden + Reps' },
-  { id: 'diane', name: 'DIANE', type: 'For Time', category: 'Girl',
-    desc: '21-15-9 Reps\nDeadlift (102/70 kg)\nHandstand Push-ups', unit: 'Zeit (mm:ss)' },
-  { id: 'elizabeth', name: 'ELIZABETH', type: 'For Time', category: 'Girl',
-    desc: '21-15-9 Reps\nClean (60/43 kg)\nRing Dips', unit: 'Zeit (mm:ss)' },
-  { id: 'grace', name: 'GRACE', type: 'For Time', category: 'Girl',
-    desc: '30 Clean & Jerks (60/43 kg)', unit: 'Zeit (mm:ss)' },
-  { id: 'isabel', name: 'ISABEL', type: 'For Time', category: 'Girl',
-    desc: '30 Snatches (60/43 kg)', unit: 'Zeit (mm:ss)' },
-  { id: 'jackie', name: 'JACKIE', type: 'For Time', category: 'Girl',
-    desc: '1000m Row\n50 Thrusters (20 kg)\n30 Pull-ups', unit: 'Zeit (mm:ss)' },
-  { id: 'karen', name: 'KAREN', type: 'For Time', category: 'Girl',
-    desc: '150 Wall Ball Shots (9/6 kg)', unit: 'Zeit (mm:ss)' },
-  { id: 'kelly', name: 'KELLY', type: 'For Time', category: 'Girl',
-    desc: '5 Rounds\n400m Run\n30 Box Jumps (60/50 cm)\n30 Wall Ball Shots (9/6 kg)', unit: 'Zeit (mm:ss)' },
-  { id: 'linda', name: 'LINDA', type: 'For Time', category: 'Girl',
-    desc: '10-9-8-7-6-5-4-3-2-1 Reps\nDeadlift (1.5x BW)\nBench Press (BW)\nClean (0.75x BW)', unit: 'Zeit (mm:ss)' },
-  { id: 'mary', name: 'MARY', type: 'AMRAP', category: 'Girl',
-    desc: '20 min AMRAP\n5 Handstand Push-ups\n10 Pistols\n15 Pull-ups', unit: 'Runden + Reps' },
-  { id: 'nancy', name: 'NANCY', type: 'For Time', category: 'Girl',
-    desc: '5 Rounds\n400m Run\n15 Overhead Squats (43/29 kg)', unit: 'Zeit (mm:ss)' },
-  { id: 'murph', name: 'MURPH', type: 'For Time', category: 'Hero',
-    desc: '1 Mile Run\n100 Pull-ups\n200 Push-ups\n300 Air Squats\n1 Mile Run\n(mit oder ohne 9 kg Weste)', unit: 'Zeit (mm:ss)' },
-  { id: 'dt', name: 'DT', type: 'For Time', category: 'Hero',
-    desc: '5 Rounds\n12 Deadlifts (70/47 kg)\n9 Hang Power Cleans\n6 Push Jerks', unit: 'Zeit (mm:ss)' },
-  { id: 'chad', name: 'CHAD', type: 'For Time', category: 'Hero',
-    desc: '1000 Step-ups (60/45 cm)\nmit 20 kg Weste', unit: 'Zeit (mm:ss)' },
-  { id: 'nutts', name: 'NUTTS', type: 'For Time', category: 'Hero',
-    desc: '10 Muscle-ups\n100m Sprint\n50 Dips\n100m Sprint\n20 Push-ups\n100m Sprint', unit: 'Zeit (mm:ss)' },
-  { id: 'jt', name: 'JT', type: 'For Time', category: 'Hero',
-    desc: '21-15-9 Reps\nHandstand Push-ups\nRing Dips\nPush-ups', unit: 'Zeit (mm:ss)' },
-  { id: 'open24_1', name: '24.1', type: 'AMRAP', category: 'Open',
-    desc: '15 min AMRAP\n21 Cal Row\n21 Thrusters (43/29 kg)\n3 Bar Muscle-ups', unit: 'Runden + Reps' },
-  { id: 'open24_2', name: '24.2', type: 'For Time', category: 'Open',
-    desc: '4 Rounds for time:\n10 Clean & Jerks (70/47 kg)\n10 Bar Muscle-ups', unit: 'Zeit (mm:ss)' },
-  { id: 'open24_3', name: '24.3', type: 'For Time', category: 'Open',
-    desc: 'For Time:\n5 Rounds: 5 Shoulder-to-OH (70/47 kg), 50 Double-Unders\n100 Pull-ups\n5 Rounds: 5 Shoulder-to-OH, 50 Double-Unders', unit: 'Zeit (mm:ss)' },
-  { id: 'back_squat', name: '1RM BACK SQUAT', type: 'Max Load', category: 'Strength',
-    desc: 'Back Squat 1 Rep Max', unit: 'kg' },
-  { id: 'clean_jerk', name: '1RM CLEAN & JERK', type: 'Max Load', category: 'Strength',
-    desc: 'Clean & Jerk 1 Rep Max', unit: 'kg' },
-  { id: 'snatch', name: '1RM SNATCH', type: 'Max Load', category: 'Strength',
-    desc: 'Snatch 1 Rep Max', unit: 'kg' },
-  { id: 'deadlift', name: '1RM DEADLIFT', type: 'Max Load', category: 'Strength',
-    desc: 'Deadlift 1 Rep Max', unit: 'kg' },
-  { id: 'shoulder_press', name: '1RM SHOULDER PRESS', type: 'Max Load', category: 'Strength',
-    desc: 'Strict Press 1 Rep Max', unit: 'kg' },
-  { id: 'fgb', name: 'FIGHT GONE BAD', type: 'AMRAP', category: 'Benchmark',
-    desc: '3 Rounds, 1 min each station, no rest:\nWall Ball (9/6 kg)\nSDHp (35/25 kg)\nBox Jump (50/40 cm)\nPush Press (35/25 kg)\n1 min Row (Cal)\n1 min Rest', unit: 'Punkte' },
-  { id: 'cf_total', name: 'CF TOTAL', type: 'Max Load', category: 'Benchmark',
-    desc: 'Combined 1RM:\nBack Squat\nShoulder Press\nDeadlift', unit: 'kg' },
+const WODs=[
+  // GIRLS
+  {id:'annie',name:'ANNIE',type:'For Time',cat:'Girl',desc:'50-40-30-20-10 Reps:\nDouble-Unders\nSit-ups',unit:'Zeit (mm:ss)'},
+  {id:'angie',name:'ANGIE',type:'For Time',cat:'Girl',desc:'100 Pull-ups\n100 Push-ups\n100 Sit-ups\n100 Air Squats',unit:'Zeit (mm:ss)'},
+  {id:'barbara',name:'BARBARA',type:'For Time',cat:'Girl',desc:'5 Rounds (3 min Pause):\n20 Pull-ups\n30 Push-ups\n40 Sit-ups\n50 Air Squats',unit:'Zeit (mm:ss)'},
+  {id:'chelsea',name:'CHELSEA',type:'EMOM',cat:'Girl',desc:'30 min EMOM:\n5 Pull-ups\n10 Push-ups\n15 Air Squats',unit:'Runden + Reps'},
+  {id:'cindy',name:'CINDY',type:'AMRAP',cat:'Girl',desc:'20 min AMRAP:\n5 Pull-ups\n10 Push-ups\n15 Air Squats',unit:'Runden + Reps'},
+  {id:'diane',name:'DIANE',type:'For Time',cat:'Girl',desc:'21-15-9 Reps:\nDeadlift (102/70 kg)\nHandstand Push-ups',unit:'Zeit (mm:ss)'},
+  {id:'elizabeth',name:'ELIZABETH',type:'For Time',cat:'Girl',desc:'21-15-9 Reps:\nClean (60/43 kg)\nRing Dips',unit:'Zeit (mm:ss)'},
+  {id:'fran',name:'FRAN',type:'For Time',cat:'Girl',desc:'21-15-9 Reps:\nThrusters (42.5/30 kg)\nPull-ups',unit:'Zeit (mm:ss)'},
+  {id:'grace',name:'GRACE',type:'For Time',cat:'Girl',desc:'30 Clean & Jerks (60/43 kg)',unit:'Zeit (mm:ss)'},
+  {id:'helen',name:'HELEN',type:'For Time',cat:'Girl',desc:'3 Rounds:\n400m Run\n21 KB Swings (24/16 kg)\n12 Pull-ups',unit:'Zeit (mm:ss)'},
+  {id:'isabel',name:'ISABEL',type:'For Time',cat:'Girl',desc:'30 Snatches (60/43 kg)',unit:'Zeit (mm:ss)'},
+  {id:'jackie',name:'JACKIE',type:'For Time',cat:'Girl',desc:'1000m Row\n50 Thrusters (20 kg)\n30 Pull-ups',unit:'Zeit (mm:ss)'},
+  {id:'karen',name:'KAREN',type:'For Time',cat:'Girl',desc:'150 Wall Ball Shots (9/6 kg)',unit:'Zeit (mm:ss)'},
+  {id:'kelly',name:'KELLY',type:'For Time',cat:'Girl',desc:'5 Rounds:\n400m Run\n30 Box Jumps (60/50 cm)\n30 Wall Ball (9/6 kg)',unit:'Zeit (mm:ss)'},
+  {id:'linda',name:'LINDA',type:'For Time',cat:'Girl',desc:'10-9-8-7-6-5-4-3-2-1 Reps:\nDeadlift (1.5x BW)\nBench Press (BW)\nClean (0.75x BW)',unit:'Zeit (mm:ss)'},
+  {id:'mary',name:'MARY',type:'AMRAP',cat:'Girl',desc:'20 min AMRAP:\n5 HSPU\n10 Pistols\n15 Pull-ups',unit:'Runden + Reps'},
+  {id:'nancy',name:'NANCY',type:'For Time',cat:'Girl',desc:'5 Rounds:\n400m Run\n15 OHS (43/29 kg)',unit:'Zeit (mm:ss)'},
+  // HEROES
+  {id:'chad',name:'CHAD',type:'For Time',cat:'Hero',desc:'1.000 Step-ups (60/50 cm)\nmit 20 kg Ruck/Weste',unit:'Zeit (mm:ss)'},
+  {id:'dt',name:'DT',type:'For Time',cat:'Hero',desc:'5 Rounds:\n12 Deadlifts (70/47 kg)\n9 Hang Power Cleans\n6 Push Jerks',unit:'Zeit (mm:ss)'},
+  {id:'glen',name:'GLEN',type:'For Time',cat:'Hero',desc:'30 Clean & Jerks (60/43 kg)\n1 Mile Run\n10 Rope Climbs (4.5 m)\n1 Mile Run\n100 Burpees',unit:'Zeit (mm:ss)'},
+  {id:'jt',name:'JT',type:'For Time',cat:'Hero',desc:'21-15-9 Reps:\nHSPU\nRing Dips\nPush-ups',unit:'Zeit (mm:ss)'},
+  {id:'loredo',name:'LOREDO',type:'For Time',cat:'Hero',desc:'6 Rounds:\n24 Air Squats\n24 Push-ups\n24 Walking Lunges\n400m Run',unit:'Zeit (mm:ss)'},
+  {id:'murph',name:'MURPH',type:'For Time',cat:'Hero',desc:'1 Mile Run\n100 Pull-ups\n200 Push-ups\n300 Air Squats\n1 Mile Run\n(mit/ohne 9 kg Weste)',unit:'Zeit (mm:ss)'},
+  {id:'nate',name:'NATE',type:'AMRAP',cat:'Hero',desc:'20 min AMRAP:\n2 Muscle-ups\n4 HSPU\n8 KB Swings (32/24 kg)',unit:'Runden + Reps'},
+  {id:'nutts',name:'NUTTS',type:'For Time',cat:'Hero',desc:'10 Muscle-ups · 100m Sprint\n50 Ring Dips · 100m Sprint\n20 Push-ups · 100m Sprint\n50 Air Squats · 100m Sprint',unit:'Zeit (mm:ss)'},
+  {id:'ryan',name:'RYAN',type:'For Time',cat:'Hero',desc:'5 Rounds:\n7 Muscle-ups\n21 Burpees',unit:'Zeit (mm:ss)'},
+  {id:'tommy_v',name:'TOMMY V',type:'For Time',cat:'Hero',desc:'21-15-9 Reps:\nThruster (61/43 kg)\nRope Climbs (4.5 m)',unit:'Zeit (mm:ss)'},
+  // BENCHMARKS
+  {id:'badger',name:'BADGER',type:'For Time',cat:'Benchmark',desc:'3 Rounds:\n30 Squat Cleans (43/29 kg)\n30 Pull-ups\n800m Run',unit:'Zeit (mm:ss)'},
+  {id:'cf_total',name:'CF TOTAL',type:'Max Load',cat:'Benchmark',desc:'1RM Back Squat + Shoulder Press + Deadlift\n(Summe aller drei)',unit:'kg'},
+  {id:'dbp',name:'DEATH BY PULL-UPS',type:'EMOM',cat:'Benchmark',desc:'Min 1: 1 Pull-up\nMin 2: 2 Pull-ups\n… bis zur Aufgabe',unit:'Runden + Reps'},
+  {id:'fgb',name:'FIGHT GONE BAD',type:'AMRAP',cat:'Benchmark',desc:'3 Rounds, 1 min each:\nWall Ball (9/6 kg) · SDHP (35/25 kg)\nBox Jump (50/40 cm) · Push Press (35/25 kg)\nRow (Cal) — 1 min Rest',unit:'Punkte'},
+  {id:'f50',name:'FILTHY FIFTY',type:'For Time',cat:'Benchmark',desc:'50 Box Jumps (60/50 cm)\n50 Jumping Pull-ups\n50 KB Swings (16/12 kg)\n50 Walking Lunges\n50 K2E · 50 Push Press (20 kg)\n50 Hip Extensions\n50 Wall Ball (9/6 kg)\n50 Burpees · 50 Double-Unders',unit:'Zeit (mm:ss)'},
+  // STRENGTH
+  {id:'bs',name:'1RM BACK SQUAT',type:'Max Load',cat:'Strength',desc:'Back Squat 1 Rep Max',unit:'kg'},
+  {id:'bp',name:'1RM BENCH PRESS',type:'Max Load',cat:'Strength',desc:'Bench Press 1 Rep Max',unit:'kg'},
+  {id:'cl',name:'1RM CLEAN',type:'Max Load',cat:'Strength',desc:'Power Clean oder Squat Clean\n1 Rep Max',unit:'kg'},
+  {id:'cj',name:'1RM CLEAN & JERK',type:'Max Load',cat:'Strength',desc:'Clean & Jerk 1 Rep Max',unit:'kg'},
+  {id:'dl',name:'1RM DEADLIFT',type:'Max Load',cat:'Strength',desc:'Deadlift 1 Rep Max',unit:'kg'},
+  {id:'fs',name:'1RM FRONT SQUAT',type:'Max Load',cat:'Strength',desc:'Front Squat 1 Rep Max',unit:'kg'},
+  {id:'ohs',name:'1RM OVERHEAD SQUAT',type:'Max Load',cat:'Strength',desc:'Overhead Squat 1 Rep Max',unit:'kg'},
+  {id:'sp',name:'1RM SHOULDER PRESS',type:'Max Load',cat:'Strength',desc:'Strict Shoulder Press 1 Rep Max',unit:'kg'},
+  {id:'sn',name:'1RM SNATCH',type:'Max Load',cat:'Strength',desc:'Snatch 1 Rep Max',unit:'kg'},
+  {id:'th',name:'1RM THRUSTER',type:'Max Load',cat:'Strength',desc:'Thruster 1 Rep Max',unit:'kg'},
+  // OPEN 2024
+  {id:'o241',name:'24.1',type:'For Time',cat:'Open',year:'2024',desc:'For Time (Cap 15 min)\n21-15-9 Reps je Seite:\nDumbbell Snatches\nLateral Burpees over DB\n♀ 15 kg · ♂ 22.5 kg',unit:'Zeit (mm:ss)'},
+  {id:'o242',name:'24.2',type:'AMRAP',cat:'Open',year:'2024',desc:'20 min AMRAP:\n300m Row\n10 Deadlifts\n50 Double-Unders\n♀ 56 kg · ♂ 83 kg',unit:'Runden + Reps'},
+  {id:'o243',name:'24.3',type:'For Time',cat:'Open',year:'2024',desc:'For Time (Cap 15 min)\n5 Rds: 10 Thrusters + 10 C2B Pull-ups\nRest 1 min, dann:\n5 Rds: 7 Thrusters + 7 Bar Muscle-ups\n♀ 29/43 kg · ♂ 43/61 kg',unit:'Zeit (mm:ss)'},
+  // OPEN 2025
+  {id:'o251',name:'25.1',type:'AMRAP',cat:'Open',year:'2025',desc:'15 min AMRAP (Reps +3/Runde):\n3 Lateral Burpees over DB\n3 DB Hang Clean-to-OH\n30 ft (2x15) Walking Lunge\n♀ 15 kg · ♂ 22.5 kg',unit:'Runden + Reps'},
+  {id:'o252',name:'25.2',type:'For Time',cat:'Open',year:'2025',desc:'For Time:\n21 Pull-ups · 42 DU · 21 Thrusters (Gew.1)\n18 C2B · 36 DU · 18 Thrusters (Gew.2)\n15 BMU · 30 DU · 15 Thrusters (Gew.3)\n♀ 20/25/29 kg · ♂ 29/38/47 kg',unit:'Zeit (mm:ss)'},
+  {id:'o253',name:'25.3',type:'For Time',cat:'Open',year:'2025',desc:'For Time (Cap 20 min)\n5 Wall Walks · 50 Cal Row\n5 Wall Walks · 25 Deadlifts\n5 Wall Walks · 25 Cleans\n5 Wall Walks · 25 Snatches\n5 Wall Walks · 50 Cal Row\n♀ DL 70/Cl 38/Sn 29 kg · ♂ DL 102/Cl 61/Sn 43 kg',unit:'Zeit (mm:ss)'},
+  // OPEN 2026
+  {id:'o261',name:'26.1',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 12 min) — Pyramide:\n20 WBS · 18 Box Jump-Overs\n30 WBS · 18 Box Jump-Overs\n40 WBS · 18 MB Box Step-Overs\n66 WBS · 18 MB Box Step-Overs\n40 WBS · 18 Box Jump-Overs\n30 WBS · 18 Box Jump-Overs · 20 WBS\n♀ 6 kg/50 cm · ♂ 9 kg/60 cm',unit:'Zeit (mm:ss)'},
+  {id:'o262',name:'26.2',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 15 min) — 3 Rounds:\nRd1: 80ft DB OH Lunge + 20 DB Snatches + 20 Pull-ups\nRd2: 80ft DB OH Lunge + 20 DB Snatches + 20 C2B\nRd3: 80ft DB OH Lunge + 20 DB Snatches + 20 Ring MU\n♀ 16 kg · ♂ 22.5 kg',unit:'Zeit (mm:ss)'},
+  {id:'o263',name:'26.3',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 16 min) — 6 Rounds:\nRds 1-2: 12 Burpees over Bar + 12 Cleans + 12 Thrusters\nRds 3-4: gleich, schwerer\nRds 5-6: gleich, am schwersten\n♀ 29/34/38 kg · ♂ 43/52/61 kg',unit:'Zeit (mm:ss)'},
 ];
 
-const CATEGORIES = ['Alle', 'Girl', 'Hero', 'Open', 'Strength', 'Benchmark'];
+const CATS=['Alle','Girl','Hero','Benchmark','Strength','Open'];
+const YRS=['Alle','2024','2025','2026'];
 
-// ── STORAGE ──────────────────────────────────────────────────────────────────
-function loadDB() {
-  try { DB = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { users: {}, scores: {} }; } catch(e) { DB = { users: {}, scores: {} }; }
-  if (!DB.users) DB.users = {};
-  if (!DB.scores) DB.scores = {};
+function ldb(){
+  try{DB=JSON.parse(localStorage.getItem(SK))||{users:{},scores:{}};}
+  catch(e){DB={users:{},scores:{}};}
+  DB.users=DB.users||{};DB.scores=DB.scores||{};
 }
-function saveDB() { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }
+function sdb(){localStorage.setItem(SK,JSON.stringify(DB));}
 
-// ── AUTH ─────────────────────────────────────────────────────────────────────
-function showAuthTab(t) {
-  document.getElementById('auth-login').style.display = t === 'login' ? '' : 'none';
-  document.getElementById('auth-register').style.display = t === 'register' ? '' : 'none';
-  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i === 0) === (t === 'login')));
-}
-
-function showMsg(id, text, type) {
-  const el = document.getElementById(id);
-  el.className = 'msg ' + type;
-  el.textContent = text;
-}
-
-function doRegister() {
-  const first = document.getElementById('reg-first').value.trim();
-  const last = document.getElementById('reg-last').value.trim();
-  const email = document.getElementById('reg-email').value.trim().toLowerCase();
-  const pw = document.getElementById('reg-pw').value;
-  const box = document.getElementById('reg-box').value.trim();
-  if (!first || !last || !email || !pw) return showMsg('auth-msg', 'Bitte alle Pflichtfelder ausfüllen.', 'error');
-  if (pw.length < 6) return showMsg('auth-msg', 'Passwort muss mindestens 6 Zeichen lang sein.', 'error');
-  if (DB.users[email]) return showMsg('auth-msg', 'Diese E-Mail ist bereits registriert.', 'error');
-  DB.users[email] = { email, first, last, box, pw, since: new Date().toISOString().split('T')[0] };
-  saveDB();
-  showMsg('auth-msg', 'Konto erstellt! Du kannst dich jetzt einloggen.', 'success');
-  showAuthTab('login');
-}
-
-function doLogin() {
-  const email = document.getElementById('login-email').value.trim().toLowerCase();
-  const pw = document.getElementById('login-pw').value;
-  if (!DB.users[email] || DB.users[email].pw !== pw) return showMsg('auth-msg', 'E-Mail oder Passwort falsch.', 'error');
-  currentUser = DB.users[email];
-  enterApp();
-}
-
-function doLogout() {
-  currentUser = null;
-  document.getElementById('screen-app').classList.remove('active');
-  document.getElementById('screen-auth').classList.add('active');
-}
-
-function enterApp() {
-  document.getElementById('screen-auth').classList.remove('active');
-  document.getElementById('screen-app').classList.add('active');
-  const initials = (currentUser.first[0] + currentUser.last[0]).toUpperCase();
-  document.getElementById('nav-avatar').textContent = initials;
-  document.getElementById('nav-name').textContent = currentUser.first + ' ' + currentUser.last;
-  document.getElementById('profile-avatar').textContent = initials;
-  document.getElementById('profile-name').textContent = currentUser.first + ' ' + currentUser.last;
-  document.getElementById('profile-since').textContent = 'Mitglied seit ' + currentUser.since + (currentUser.box ? ' · ' + currentUser.box : '');
-  switchView('benchmarks');
-  renderBenchmarks();
-  renderProfile();
-}
-
-// ── VIEWS ─────────────────────────────────────────────────────────────────────
-function switchView(v) {
-  document.querySelectorAll('.view').forEach(el => el.classList.toggle('active', el.id === 'view-' + v));
-  document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === v));
-  if (v === 'custom') renderCustomWODs();
-  if (v === 'profile') renderProfile();
-}
-
-// ── BENCHMARKS ────────────────────────────────────────────────────────────────
-let activeCat = 'Alle';
-function renderBenchmarks() {
-  const q = (document.getElementById('bench-search').value || '').toLowerCase();
-  const filtered = BENCHMARKS.filter(w =>
-    (activeCat === 'Alle' || w.category === activeCat) &&
-    (!q || w.name.toLowerCase().includes(q) || w.desc.toLowerCase().includes(q))
-  );
-  // filters
-  const fRow = document.getElementById('bench-filters');
-  fRow.innerHTML = CATEGORIES.map(c =>
-    `<button class="filter-btn${activeCat === c ? ' active' : ''}" onclick="setCat('${c}')">${c}</button>`
-  ).join('');
-  // list
-  const list = document.getElementById('bench-list');
-  if (!filtered.length) { list.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Keine Workouts gefunden.</div>`; return; }
-  list.innerHTML = filtered.map(w => {
-    const pr = getBestScore(w.id);
-    return `<div class="wod-card" onclick="openScoreModal('${w.id}', 'bench')">
-      <div class="wod-top">
-        <div class="wod-name">${w.name}</div>
-        <span class="wod-type">${w.category}</span>
-      </div>
-      <div class="wod-desc">${w.desc.replace(/\n/g,'<br>')}</div>
-      ${pr ? `<div class="wod-pr"><span class="pr-label">Beste:</span><span class="pr-val">${pr.val}</span><span class="pr-date">${pr.date}</span></div>` : ''}
-    </div>`;
-  }).join('');
-}
-
-function setCat(c) { activeCat = c; renderBenchmarks(); }
-
-// ── CUSTOM WODs ───────────────────────────────────────────────────────────────
-function saveCustomWOD() {
-  const name = document.getElementById('wod-name').value.trim().toUpperCase();
-  const wtype = document.getElementById('wod-wtype').value;
-  const desc = document.getElementById('wod-desc').value.trim();
-  const unit = document.getElementById('wod-unit').value;
-  if (!name || !desc) return showMsg('add-msg', 'Name und Beschreibung sind Pflichtfelder.', 'error');
-  if (!DB.scores[currentUser.email]) DB.scores[currentUser.email] = {};
-  const id = 'custom_' + Date.now();
-  if (!DB.scores[currentUser.email]._customWODs) DB.scores[currentUser.email]._customWODs = [];
-  DB.scores[currentUser.email]._customWODs.push({ id, name, type: wtype, desc, unit, category: 'Eigene' });
-  saveDB();
-  showMsg('add-msg', 'Workout gespeichert!', 'success');
-  document.getElementById('wod-name').value = '';
-  document.getElementById('wod-desc').value = '';
-}
-
-function renderCustomWODs() {
-  const list = document.getElementById('custom-list');
-  const wods = getCustomWODs();
-  if (!wods.length) {
-    list.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Noch keine eigenen Workouts.<br>Leg eines im Tab "Anlegen" an.</div>`;
-    return;
-  }
-  list.innerHTML = wods.map(w => {
-    const pr = getBestScore(w.id);
-    return `<div class="wod-card" onclick="openScoreModal('${w.id}', 'custom')">
-      <div class="wod-top"><div class="wod-name">${w.name}</div><span class="wod-type">${w.type}</span></div>
-      <div class="wod-desc">${w.desc.replace(/\n/g,'<br>')}</div>
-      ${pr ? `<div class="wod-pr"><span class="pr-label">Beste:</span><span class="pr-val">${pr.val}</span><span class="pr-date">${pr.date}</span></div>` : ''}
-    </div>`;
-  }).join('');
-}
-
-function getCustomWODs() {
-  if (!DB.scores[currentUser.email]) return [];
-  return DB.scores[currentUser.email]._customWODs || [];
-}
-
-// ── SCORES ────────────────────────────────────────────────────────────────────
-function getUserScores(wodId) {
-  if (!DB.scores[currentUser.email]) return [];
-  return (DB.scores[currentUser.email][wodId] || []);
-}
-
-function getBestScore(wodId) {
-  const scores = getUserScores(wodId);
-  if (!scores.length) return null;
-  const s = scores[0];
-  return { val: s.val, date: s.date };
-}
-
-function openScoreModal(wodId, source) {
-  const wod = source === 'bench' ? BENCHMARKS.find(w => w.id === wodId) : getCustomWODs().find(w => w.id === wodId);
-  if (!wod) return;
-  currentWOD = wod;
-  document.getElementById('modal-wod-name').textContent = wod.name;
-  document.getElementById('modal-wod-desc').innerHTML = wod.desc.replace(/\n/g, '<br>') + `<br><span style="color:var(--accent);font-weight:600;font-size:12px;">${wod.type} · Score: ${wod.unit}</span>`;
-  document.getElementById('score-label').textContent = wod.unit;
-  document.getElementById('score-val-input').placeholder = wod.unit === 'Zeit (mm:ss)' ? '12:34' : wod.unit === 'kg' ? '100' : wod.unit === 'Runden + Reps' ? '8+12' : '–';
-  document.getElementById('score-date-input').value = new Date().toISOString().split('T')[0];
-  document.getElementById('score-val-input').value = '';
-  document.getElementById('score-note-input').value = '';
-  document.getElementById('score-msg').textContent = '';
-  renderScoreList();
-  document.getElementById('score-overlay').classList.add('open');
-}
-
-function closeScoreModal(e, force) {
-  if (force || (e && e.target === document.getElementById('score-overlay'))) {
-    document.getElementById('score-overlay').classList.remove('open');
-    currentWOD = null;
-    renderBenchmarks();
-    renderCustomWODs();
+// Testuser beim ersten Laden anlegen
+function initTestUser(){
+  if(!DB.users['max@box.at']){
+    DB.users['max@box.at']={
+      email:'max@box.at',first:'Max',last:'Mustermann',
+      box:'CrossFit Amstetten',pw:'test123',since:'2024-09-01'
+    };
+    DB.scores['max@box.at']={
+      fran:[{val:'4:32',date:'2025-03-15',note:'RX',ts:Date.now()-100000},{val:'5:01',date:'2024-11-02',note:'RX',ts:Date.now()-200000}],
+      annie:[{val:'7:44',date:'2025-01-10',note:'RX',ts:Date.now()-220000}],
+      murph:[{val:'42:17',date:'2025-05-28',note:'mit Weste',ts:Date.now()-50000}],
+      bs:[{val:'120',date:'2025-04-10',note:'PR!',ts:Date.now()-80000}],
+      bp:[{val:'95',date:'2025-01-18',note:'PR',ts:Date.now()-180000}],
+      fs:[{val:'100',date:'2025-03-01',note:'',ts:Date.now()-160000}],
+      cl:[{val:'85',date:'2025-02-10',note:'PR',ts:Date.now()-170000}],
+      o261:[{val:'11:02',date:'2026-02-28',note:'RX',ts:Date.now()-60000}],
+      o263:[{val:'192',date:'2026-03-14',note:'RX',ts:Date.now()-20000}],
+    };
+    sdb();
   }
 }
 
-function saveScore() {
-  const val = document.getElementById('score-val-input').value.trim();
-  const date = document.getElementById('score-date-input').value;
-  const note = document.getElementById('score-note-input').value.trim();
-  if (!val) return showMsg('score-msg', 'Bitte einen Score eingeben.', 'error');
-  if (!date) return showMsg('score-msg', 'Bitte ein Datum wählen.', 'error');
-  if (!DB.scores[currentUser.email]) DB.scores[currentUser.email] = {};
-  if (!DB.scores[currentUser.email][currentWOD.id]) DB.scores[currentUser.email][currentWOD.id] = [];
-  DB.scores[currentUser.email][currentWOD.id].unshift({ val, date, note, ts: Date.now() });
-  saveDB();
-  showMsg('score-msg', 'Score gespeichert!', 'success');
-  document.getElementById('score-val-input').value = '';
-  document.getElementById('score-note-input').value = '';
-  renderScoreList();
-  renderProfile();
+function sat(t){
+  document.getElementById('alog').style.display=t==='login'?'':'none';
+  document.getElementById('areg').style.display=t==='reg'?'':'none';
+  document.querySelectorAll('.tb').forEach((b,i)=>b.classList.toggle('on',(i===0)===(t==='login')));
+}
+function sm(id,tx,tp){const e=document.getElementById(id);e.className='msg '+tp;e.textContent=tx;}
+
+function dor(){
+  const f=document.getElementById('rf').value.trim(),l=document.getElementById('rl').value.trim();
+  const e=document.getElementById('re').value.trim().toLowerCase(),p=document.getElementById('rp').value;
+  const bx=document.getElementById('rb').value.trim();
+  if(!f||!l||!e||!p)return sm('am','Bitte alle Pflichtfelder ausfüllen.','err');
+  if(p.length<6)return sm('am','Passwort mind. 6 Zeichen.','err');
+  if(DB.users[e])return sm('am','E-Mail bereits registriert.','err');
+  DB.users[e]={email:e,first:f,last:l,box:bx,pw:p,since:new Date().toISOString().split('T')[0]};
+  sdb();sm('am','Konto erstellt! Jetzt einloggen.','ok');sat('login');
+}
+function dol(){
+  const e=document.getElementById('le').value.trim().toLowerCase(),p=document.getElementById('lp').value;
+  if(!DB.users[e]||DB.users[e].pw!==p)return sm('am','E-Mail oder Passwort falsch.','err');
+  CU=DB.users[e];ea();
+}
+function dout(){CU=null;document.getElementById('sapp').classList.remove('on');document.getElementById('sa').classList.add('on');}
+
+function ea(){
+  document.getElementById('sa').classList.remove('on');
+  document.getElementById('sapp').classList.add('on');
+  const ini=(CU.first[0]+CU.last[0]).toUpperCase();
+  document.getElementById('navav').textContent=ini;
+  document.getElementById('pav').textContent=ini;
+  document.getElementById('navnm').textContent=CU.first+' '+CU.last;
+  document.getElementById('pnm').textContent=CU.first+' '+CU.last;
+  document.getElementById('psi').textContent='Mitglied seit '+CU.since+(CU.box?' · '+CU.box:'');
+  sv('bm');
 }
 
-function deleteScore(wodId, idx) {
-  if (!confirm('Score löschen?')) return;
-  DB.scores[currentUser.email][wodId].splice(idx, 1);
-  saveDB();
-  renderScoreList();
-  renderProfile();
+function sv(v){
+  document.querySelectorAll('.vi').forEach(e=>e.classList.toggle('on',e.id==='v'+v));
+  document.querySelectorAll('[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  if(v==='cw')rcw();if(v==='pr')rpr();if(v==='bm')rb();
 }
 
-function renderScoreList() {
-  const scores = getUserScores(currentWOD.id);
-  const el = document.getElementById('modal-score-list');
-  if (!scores.length) { el.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:12px 0;">Noch kein Score eingetragen.</div>`; return; }
-  el.innerHTML = scores.map((s, i) => `
-    <div class="score-row">
-      <div>
-        <div class="score-val">${s.val}</div>
-        <div class="score-info">${s.date}${s.note ? ' · ' + s.note : ''}</div>
-      </div>
-      <button class="btn-sm btn-danger" onclick="deleteScore('${currentWOD.id}', ${i})">Löschen</button>
-    </div>
-  `).join('');
-}
+function scat(c){AC=c;if(c!=='Open')AY='Alle';rb();}
+function syr(y){AY=y;rb();}
 
-// ── PROFILE ───────────────────────────────────────────────────────────────────
-function renderProfile() {
-  if (!currentUser) return;
-  const userScores = DB.scores[currentUser.email] || {};
-  let totalScores = 0, wodsDone = 0;
-  const recent = [];
-  Object.entries(userScores).forEach(([k, v]) => {
-    if (k === '_customWODs') return;
-    if (Array.isArray(v) && v.length > 0) {
-      wodsDone++;
-      totalScores += v.length;
-      v.forEach(s => recent.push({ wodId: k, ...s }));
-    }
+function rb(){
+  const q=(document.getElementById('bsq').value||'').toLowerCase();
+  document.getElementById('bfr').innerHTML=CATS.map(c=>
+    `<button class="fb${AC===c?' on':''}" onclick="scat('${c}')">${c}</button>`).join('');
+  const yw=document.getElementById('yfw');
+  if(AC==='Open'){
+    yw.style.display='';
+    document.getElementById('yf').innerHTML=`<span class="yl">Jahr:</span>`+
+      YRS.map(y=>`<button class="yb${AY===y?' on':''}" onclick="syr('${y}')">${y}</button>`).join('');
+  } else yw.style.display='none';
+  const fil=WODs.filter(w=>{
+    if(AC!=='Alle'&&w.cat!==AC)return false;
+    if(AC==='Open'&&AY!=='Alle'&&w.year!==AY)return false;
+    if(q&&!w.name.toLowerCase().includes(q)&&!w.desc.toLowerCase().includes(q))return false;
+    return true;
   });
-  recent.sort((a, b) => b.ts - a.ts);
-  const customCount = (userScores._customWODs || []).length;
-
-  document.getElementById('profile-stats').innerHTML = `
-    <div class="stat-card"><div class="stat-val">${totalScores}</div><div class="stat-lbl">Scores</div></div>
-    <div class="stat-card"><div class="stat-val">${wodsDone}</div><div class="stat-lbl">WODs gemacht</div></div>
-    <div class="stat-card"><div class="stat-val">${customCount}</div><div class="stat-lbl">Eigene WODs</div></div>
-  `;
-
-  const recentEl = document.getElementById('profile-recent');
-  if (!recent.length) { recentEl.innerHTML = `<div class="empty" style="padding:1.5rem 0">Noch keine Scores eingetragen.</div>`; return; }
-  recentEl.innerHTML = recent.slice(0, 15).map(s => {
-    const wod = BENCHMARKS.find(w => w.id === s.wodId) || (getCustomWODs().find(w => w.id === s.wodId));
-    const name = wod ? wod.name : s.wodId;
-    return `<div class="score-row" style="margin-bottom:8px;">
-      <div>
-        <div style="font-weight:600;font-size:14px;">${name}</div>
-        <div class="score-info">${s.date}${s.note ? ' · ' + s.note : ''}</div>
-      </div>
-      <div class="score-val">${s.val}</div>
+  const list=document.getElementById('bl');
+  if(!fil.length){list.innerHTML='<div class="em">Keine Workouts gefunden.</div>';return;}
+  list.innerHTML=fil.map(w=>{
+    const pr=gbs(w.id);
+    const io=w.cat==='Open';
+    return`<div class="wc" onclick="osm('${w.id}','b')">
+      <div class="wt"><div><div class="wn">${w.name}</div><div class="wca">${w.cat}${!io?' · '+w.type:''}</div></div>
+      <span class="wb ${io?'bo':'bd'}">${io?'Open '+w.year:w.type}</span></div>
+      <div class="wd">${w.desc.replace(/\n/g,'<br>')}</div>
+      ${pr?`<div class="wp"><span class="pl">Beste:</span><span class="pv">${pr.v}</span><span class="pd">&nbsp;${pr.d}</span></div>`:''}
     </div>`;
   }).join('');
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
-loadDB();
+function gcw(){if(!DB.scores[CU.email])return[];return DB.scores[CU.email]._cw||[];}
+function scw(){
+  const n=document.getElementById('wna').value.trim().toUpperCase();
+  const ty=document.getElementById('wty').value,de=document.getElementById('wde').value.trim();
+  const un=document.getElementById('wun').value;
+  if(!n||!de)return sm('addm','Name und Beschreibung sind Pflicht.','err');
+  if(!DB.scores[CU.email])DB.scores[CU.email]={};
+  if(!DB.scores[CU.email]._cw)DB.scores[CU.email]._cw=[];
+  DB.scores[CU.email]._cw.push({id:'c_'+Date.now(),name:n,type:ty,desc:de,unit:un,cat:'Eigene'});
+  sdb();sm('addm','Workout gespeichert!','ok');
+  document.getElementById('wna').value='';document.getElementById('wde').value='';
+}
+function rcw(){
+  const wods=gcw();const list=document.getElementById('cl');
+  if(!wods.length){list.innerHTML='<div class="em">Noch keine eigenen Workouts.<br>Leg eines unter "Anlegen" an.</div>';return;}
+  list.innerHTML=wods.map(w=>{const pr=gbs(w.id);return`<div class="wc" onclick="osm('${w.id}','c')"><div class="wt"><div class="wn">${w.name}</div><span class="wb bd">${w.type}</span></div><div class="wd">${w.desc.replace(/\n/g,'<br>')}</div>${pr?`<div class="wp"><span class="pl">Beste:</span><span class="pv">${pr.v}</span><span class="pd">&nbsp;${pr.d}</span></div>`:''}</div>`;}).join('');
+}
+
+function gus(id){if(!DB.scores[CU.email])return[];return DB.scores[CU.email][id]||[];}
+function gbs(id){const s=gus(id);return s.length?{v:s[0].val,d:s[0].date}:null;}
+
+function osm(id,src){
+  const w=src==='b'?WODs.find(x=>x.id===id):gcw().find(x=>x.id===id);
+  if(!w)return;CW=w;
+  document.getElementById('mwn').textContent=w.name;
+  document.getElementById('mwd').innerHTML=w.desc.replace(/\n/g,'<br>')+`<br><span style="color:var(--a);font-size:11px;font-weight:600;">${w.type} · ${w.unit}${w.year?' · Open '+w.year:''}</span>`;
+  document.getElementById('scl').textContent=w.unit;
+  document.getElementById('svi').placeholder=w.unit==='Zeit (mm:ss)'?'12:34':w.unit==='kg'?'100':w.unit==='Runden + Reps'?'8+12':'–';
+  document.getElementById('sdi').value=new Date().toISOString().split('T')[0];
+  document.getElementById('svi').value='';document.getElementById('sni').value='';
+  document.getElementById('smsg').textContent='';
+  rsl();document.getElementById('sov').classList.add('on');
+}
+function csm(e,f){if(f||(e&&e.target===document.getElementById('sov'))){document.getElementById('sov').classList.remove('on');CW=null;rb();rcw();}}
+function ss(){
+  const v=document.getElementById('svi').value.trim(),d=document.getElementById('sdi').value,n=document.getElementById('sni').value.trim();
+  if(!v)return sm('smsg','Bitte Score eingeben.','err');
+  if(!d)return sm('smsg','Bitte Datum wählen.','err');
+  if(!DB.scores[CU.email])DB.scores[CU.email]={};
+  if(!DB.scores[CU.email][CW.id])DB.scores[CU.email][CW.id]=[];
+  DB.scores[CU.email][CW.id].unshift({val:v,date:d,note:n,ts:Date.now()});
+  sdb();sm('smsg','Score gespeichert!','ok');
+  document.getElementById('svi').value='';document.getElementById('sni').value='';
+  rsl();rpr();
+}
+function ds(id,i){if(!confirm('Score löschen?'))return;DB.scores[CU.email][id].splice(i,1);sdb();rsl();rpr();}
+function rsl(){
+  const sc=gus(CW.id);const el=document.getElementById('msl');
+  if(!sc.length){el.innerHTML='<div style="color:var(--m);font-size:12px;padding:6px 0;">Noch kein Score eingetragen.</div>';return;}
+  el.innerHTML=sc.map((s,i)=>`<div class="sr"><div><div class="sv">${s.val}</div><div class="si2">${s.date}${s.note?' · '+s.note:''}</div></div><button class="bs bsd" onclick="ds('${CW.id}',${i})">Löschen</button></div>`).join('');
+}
+function rpr(){
+  if(!CU)return;
+  const us=DB.scores[CU.email]||{};
+  let tot=0,done=0;const rec=[];
+  Object.entries(us).forEach(([k,v])=>{if(k==='_cw')return;if(Array.isArray(v)&&v.length){done++;tot+=v.length;v.forEach(s=>rec.push({wid:k,...s}));}});
+  rec.sort((a,b)=>b.ts-a.ts);
+  const cc=(us._cw||[]).length;
+  document.getElementById('pst').innerHTML=`<div class="sk"><div class="sv2">${tot}</div><div class="sl2">Scores</div></div><div class="sk"><div class="sv2">${done}</div><div class="sl2">WODs</div></div><div class="sk"><div class="sv2">${cc}</div><div class="sl2">Eigene</div></div>`;
+  const re=document.getElementById('prec');
+  if(!rec.length){re.innerHTML='<div class="em">Noch keine Scores eingetragen.</div>';return;}
+  re.innerHTML=rec.slice(0,12).map(s=>{
+    const w=WODs.find(x=>x.id===s.wid)||(gcw().find(x=>x.id===s.wid));
+    const nm=w?w.name:s.wid;
+    return`<div class="sr" style="margin-bottom:7px;"><div><div style="font-weight:600;font-size:13px;">${nm}</div><div class="si2">${s.date}${s.note?' · '+s.note:''}</div></div><div class="sv">${s.val}</div></div>`;
+  }).join('');
+}
+
+// START
+ldb();
+initTestUser();
 </script>
 </body>
 </html>
