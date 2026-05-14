@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Box Members — WOD Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222222;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --accent: #e8c840;
+    --accent2: #c9a820;
+    --text: #f0ede8;
+    --muted: #888880;
+    --danger: #e85540;
+    --success: #4caf7d;
+    --radius: 10px;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+
+  /* LAYOUT */
+  .app { display: flex; flex-direction: column; min-height: 100vh; }
+  .screen { display: none; flex-direction: column; min-height: 100vh; }
+  .screen.active { display: flex; }
+
+  /* NAV */
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
+  .nav-logo { font-family: var(--font-display); font-size: 26px; letter-spacing: 2px; color: var(--accent); }
+  .nav-user { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; color: #000; flex-shrink: 0; }
+  .nav-name { font-size: 14px; color: var(--muted); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .btn-logout { background: none; border: 1px solid var(--border2); color: var(--muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: var(--font-body); }
+  .btn-logout:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* AUTH SCREEN */
+  .auth-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
+  .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem 2rem; width: 100%; max-width: 420px; }
+  .auth-title { font-family: var(--font-display); font-size: 42px; letter-spacing: 3px; color: var(--accent); margin-bottom: 0.25rem; }
+  .auth-sub { color: var(--muted); font-size: 14px; margin-bottom: 2rem; }
+  .tab-row { display: flex; gap: 4px; margin-bottom: 2rem; background: var(--bg); border-radius: 8px; padding: 4px; }
+  .tab-btn { flex: 1; padding: 8px; background: none; border: none; color: var(--muted); font-family: var(--font-body); font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 6px; }
+  .tab-btn.active { background: var(--accent); color: #000; }
+  label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; margin-top: 1rem; }
+  input, select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border2); color: var(--text); padding: 10px 14px; border-radius: 8px; font-family: var(--font-body); font-size: 15px; outline: none; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--surface); }
+  textarea { resize: vertical; min-height: 80px; }
+  .btn-primary { width: 100%; margin-top: 1.5rem; background: var(--accent); color: #000; border: none; padding: 13px; border-radius: 8px; font-family: var(--font-body); font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 0.5px; }
+  .btn-primary:hover { background: var(--accent2); }
+  .msg { margin-top: 1rem; font-size: 13px; text-align: center; padding: 8px; border-radius: 6px; }
+  .msg.error { background: rgba(232,85,64,0.15); color: var(--danger); }
+  .msg.success { background: rgba(76,175,125,0.15); color: var(--success); }
+
+  /* MAIN APP */
+  .main-content { flex: 1; max-width: 900px; width: 100%; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* BOTTOM NAV (mobile) */
+  .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 8px 0 12px; z-index: 100; }
+  .bottom-nav-inner { display: flex; justify-content: space-around; }
+  .bnav-btn { background: none; border: none; color: var(--muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px; font-family: var(--font-body); padding: 4px 16px; }
+  .bnav-btn.active { color: var(--accent); }
+  .bnav-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* TOP NAV TABS (desktop) */
+  .desk-nav { display: flex; gap: 4px; margin-bottom: 2rem; background: var(--surface); border-radius: 10px; padding: 6px; }
+  .desk-tab { flex: 1; background: none; border: none; color: var(--muted); font-family: var(--font-body); font-size: 14px; font-weight: 500; padding: 10px; cursor: pointer; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 7px; }
+  .desk-tab.active { background: var(--accent); color: #000; }
+  .desk-tab svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* VIEWS */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .card-title { font-family: var(--font-display); font-size: 22px; letter-spacing: 1px; }
+  .section-title { font-family: var(--font-display); font-size: 28px; letter-spacing: 2px; color: var(--accent); margin-bottom: 1.5rem; }
+
+  /* WORKOUT LIST */
+  .wod-list { display: grid; gap: 10px; }
+  .wod-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; cursor: pointer; transition: border-color 0.15s; }
+  .wod-card:hover { border-color: var(--accent); }
+  .wod-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .wod-name { font-family: var(--font-display); font-size: 22px; letter-spacing: 1px; }
+  .wod-type { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 4px; background: rgba(232,200,64,0.12); color: var(--accent); }
+  .wod-desc { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .wod-pr { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; }
+  .pr-label { color: var(--muted); }
+  .pr-val { font-weight: 600; color: var(--accent); }
+  .pr-date { color: var(--muted); font-size: 12px; }
+
+  /* SCORE MODAL OVERLAY */
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+  .overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 16px; padding: 2rem; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+  .modal-title { font-family: var(--font-display); font-size: 30px; letter-spacing: 2px; color: var(--accent); margin-bottom: 0.5rem; }
+  .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.5; }
+  .modal-section { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 1.25rem 0 0.75rem; }
+  .score-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
+  .score-row { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .score-val { font-weight: 600; font-size: 15px; }
+  .score-info { font-size: 12px; color: var(--muted); }
+  .score-note { font-size: 12px; color: var(--muted); font-style: italic; }
+  .btn-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 22px; line-height: 1; padding: 4px; }
+  .btn-close:hover { color: var(--text); }
+  .btn-sm { background: none; border: 1px solid var(--border2); color: var(--muted); padding: 7px 14px; border-radius: 6px; font-family: var(--font-body); font-size: 13px; cursor: pointer; }
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { border-color: rgba(232,85,64,0.4); color: var(--danger); }
+  .btn-danger:hover { border-color: var(--danger); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* SEARCH */
+  .search-wrap { position: relative; margin-bottom: 1.25rem; }
+  .search-wrap input { padding-left: 40px; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .filter-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; font-family: var(--font-body); }
+  .filter-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  /* PROFILE */
+  .profile-hero { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 2rem; }
+  .profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 22px; color: #000; flex-shrink: 0; }
+  .profile-name { font-family: var(--font-display); font-size: 34px; letter-spacing: 2px; }
+  .profile-since { font-size: 13px; color: var(--muted); }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 2rem; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; text-align: center; }
+  .stat-val { font-family: var(--font-display); font-size: 32px; color: var(--accent); }
+  .stat-lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+  .empty svg { width: 48px; height: 48px; margin: 0 auto 1rem; display: block; stroke: var(--border2); fill: none; stroke-width: 1.5; }
+
+  /* CUSTOM WORKOUT FORM */
+  .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .main-content { padding: 1rem 1rem 80px; }
+    .desk-nav { display: none; }
+    .bottom-nav { display: block; }
+    .row2 { grid-template-columns: 1fr; }
+    .auth-card { padding: 2rem 1.25rem; }
+    nav .nav-name { display: none; }
+  }
+  @media (min-width: 641px) {
+    .bottom-nav { display: none; }
+    .desk-nav { display: flex; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- AUTH SCREEN -->
+<div class="screen active" id="screen-auth">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-title">BOX DB</div>
+      <div class="auth-sub">Mitglieder & WOD Score Tracker</div>
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="showAuthTab('login')">Anmelden</button>
+        <button class="tab-btn" onclick="showAuthTab('register')">Registrieren</button>
+      </div>
+      <div id="auth-login">
+        <label>E-Mail</label>
+        <input type="email" id="login-email" placeholder="deine@email.com" />
+        <label>Passwort</label>
+        <input type="password" id="login-pw" placeholder="••••••••" />
+        <button class="btn-primary" onclick="doLogin()">Einloggen</button>
+      </div>
+      <div id="auth-register" style="display:none">
+        <div class="row2">
+          <div><label>Vorname</label><input type="text" id="reg-first" placeholder="Max" /></div>
+          <div><label>Nachname</label><input type="text" id="reg-last" placeholder="Mustermann" /></div>
+        </div>
+        <label>E-Mail</label>
+        <input type="email" id="reg-email" placeholder="deine@email.com" />
+        <label>Passwort</label>
+        <input type="password" id="reg-pw" placeholder="Mindestens 6 Zeichen" />
+        <label>Box / Gym Name (optional)</label>
+        <input type="text" id="reg-box" placeholder="z.B. CrossFit Vienna" />
+        <button class="btn-primary" onclick="doRegister()">Konto erstellen</button>
+      </div>
+      <div id="auth-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP SCREEN -->
+<div class="screen" id="screen-app">
+  <nav>
+    <div class="nav-logo">BOX DB</div>
+    <div class="nav-user">
+      <div class="avatar" id="nav-avatar">?</div>
+      <span class="nav-name" id="nav-name">–</span>
+      <button class="btn-logout" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <!-- DESKTOP TABS -->
+    <div class="desk-nav">
+      <button class="desk-tab active" data-view="benchmarks" onclick="switchView('benchmarks')">
+        <svg viewBox="0 0 24 24"><path d="M3 17l4-8 4 4 4-6 4 10"/></svg>Benchmarks
+      </button>
+      <button class="desk-tab" data-view="custom" onclick="switchView('custom')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>Eigene WODs
+      </button>
+      <button class="desk-tab" data-view="add" onclick="switchView('add')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>WOD anlegen
+      </button>
+      <button class="desk-tab" data-view="profile" onclick="switchView('profile')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profil
+      </button>
+    </div>
+
+    <!-- BENCHMARKS VIEW -->
+    <div class="view active" id="view-benchmarks">
+      <div class="section-title">Benchmark WODs</div>
+      <div class="search-wrap">
+        <svg class="search-icon" width="17" height="17" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="bench-search" placeholder="WOD suchen…" oninput="renderBenchmarks()" />
+      </div>
+      <div class="filter-row" id="bench-filters"></div>
+      <div class="wod-list" id="bench-list"></div>
+    </div>
+
+    <!-- CUSTOM WORKOUTS VIEW -->
+    <div class="view" id="view-custom">
+      <div class="section-title">Eigene Workouts</div>
+      <div class="wod-list" id="custom-list"></div>
+    </div>
+
+    <!-- ADD WOD VIEW -->
+    <div class="view" id="view-add">
+      <div class="section-title">Workout anlegen</div>
+      <div class="form-card">
+        <label>Name des Workouts</label>
+        <input type="text" id="wod-name" placeholder="z.B. Friday Fran, My Hero…" />
+        <label>Typ</label>
+        <select id="wod-wtype">
+          <option value="For Time">For Time</option>
+          <option value="AMRAP">AMRAP</option>
+          <option value="EMOM">EMOM</option>
+          <option value="Max Load">Max Load (1RM/3RM…)</option>
+          <option value="Reps">Max Reps</option>
+          <option value="Sonstige">Sonstige</option>
+        </select>
+        <label>Beschreibung / Bewegungen</label>
+        <textarea id="wod-desc" placeholder="z.B. 21-15-9&#10;Thrusters (42.5/30 kg)&#10;Pull-ups"></textarea>
+        <label>Score-Einheit</label>
+        <select id="wod-unit">
+          <option value="Zeit (mm:ss)">Zeit (mm:ss)</option>
+          <option value="Runden + Reps">Runden + Reps</option>
+          <option value="kg">kg (Gewicht)</option>
+          <option value="Wiederholungen">Wiederholungen</option>
+          <option value="Punkte">Punkte</option>
+          <option value="Meter">Meter</option>
+        </select>
+        <button class="btn-primary" onclick="saveCustomWOD()">Workout speichern</button>
+        <div id="add-msg"></div>
+      </div>
+    </div>
+
+    <!-- PROFILE VIEW -->
+    <div class="view" id="view-profile">
+      <div class="profile-hero">
+        <div class="profile-avatar" id="profile-avatar">?</div>
+        <div>
+          <div class="profile-name" id="profile-name">–</div>
+          <div class="profile-since" id="profile-since"></div>
+        </div>
+      </div>
+      <div class="stats-grid" id="profile-stats"></div>
+      <div class="section-title" style="font-size:22px;margin-bottom:1rem;">Letzte Scores</div>
+      <div id="profile-recent"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV (mobile) -->
+  <div class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <button class="bnav-btn active" data-view="benchmarks" onclick="switchView('benchmarks')">
+        <svg viewBox="0 0 24 24"><path d="M3 17l4-8 4 4 4-6 4 10"/></svg>Benchmarks
+      </button>
+      <button class="bnav-btn" data-view="custom" onclick="switchView('custom')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>Eigene
+      </button>
+      <button class="bnav-btn" data-view="add" onclick="switchView('add')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Anlegen
+      </button>
+      <button class="bnav-btn" data-view="profile" onclick="switchView('profile')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profil
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SCORE MODAL -->
+<div class="overlay" id="score-overlay" onclick="closeScoreModal(event)">
+  <div class="modal" id="score-modal">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
+      <div>
+        <div class="modal-title" id="modal-wod-name">–</div>
+        <div class="modal-sub" id="modal-wod-desc">–</div>
+      </div>
+      <button class="btn-close" onclick="closeScoreModal(null, true)">✕</button>
+    </div>
+
+    <div class="modal-section">Neuen Score eintragen</div>
+    <div id="score-form-fields">
+      <div class="row2">
+        <div>
+          <label id="score-label">Score</label>
+          <input type="text" id="score-val-input" placeholder="z.B. 12:34" />
+        </div>
+        <div>
+          <label>Datum</label>
+          <input type="date" id="score-date-input" />
+        </div>
+      </div>
+      <label>Notizen (optional)</label>
+      <input type="text" id="score-note-input" placeholder="z.B. RX, scaled, Verletzung…" />
+      <button class="btn-primary" onclick="saveScore()">Score speichern</button>
+      <div id="score-msg"></div>
+    </div>
+
+    <div class="modal-section">Meine Scores</div>
+    <div class="score-list" id="modal-score-list"></div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'boxdb_v2';
+let DB = { users: {}, scores: {} };
+let currentUser = null;
+let currentWOD = null;
+
+// BENCHMARK WORKOUTS (classic CrossFit)
+const BENCHMARKS = [
+  { id: 'fran', name: 'FRAN', type: 'For Time', category: 'Girl',
+    desc: '21-15-9 Reps\nThrusters (42.5/30 kg)\nPull-ups', unit: 'Zeit (mm:ss)' },
+  { id: 'helen', name: 'HELEN', type: 'For Time', category: 'Girl',
+    desc: '3 Rounds\n400m Run\n21 Kettlebell Swings (24/16 kg)\n12 Pull-ups', unit: 'Zeit (mm:ss)' },
+  { id: 'cindy', name: 'CINDY', type: 'AMRAP', category: 'Girl',
+    desc: '20 min AMRAP\n5 Pull-ups\n10 Push-ups\n15 Air Squats', unit: 'Runden + Reps' },
+  { id: 'angie', name: 'ANGIE', type: 'For Time', category: 'Girl',
+    desc: '100 Pull-ups\n100 Push-ups\n100 Sit-ups\n100 Air Squats', unit: 'Zeit (mm:ss)' },
+  { id: 'barbara', name: 'BARBARA', type: 'For Time', category: 'Girl',
+    desc: '5 Rounds, rest 3 min between:\n20 Pull-ups\n30 Push-ups\n40 Sit-ups\n50 Air Squats', unit: 'Zeit (mm:ss)' },
+  { id: 'chelsea', name: 'CHELSEA', type: 'EMOM', category: 'Girl',
+    desc: '30 min EMOM\n5 Pull-ups\n10 Push-ups\n15 Air Squats', unit: 'Runden + Reps' },
+  { id: 'diane', name: 'DIANE', type: 'For Time', category: 'Girl',
+    desc: '21-15-9 Reps\nDeadlift (102/70 kg)\nHandstand Push-ups', unit: 'Zeit (mm:ss)' },
+  { id: 'elizabeth', name: 'ELIZABETH', type: 'For Time', category: 'Girl',
+    desc: '21-15-9 Reps\nClean (60/43 kg)\nRing Dips', unit: 'Zeit (mm:ss)' },
+  { id: 'grace', name: 'GRACE', type: 'For Time', category: 'Girl',
+    desc: '30 Clean & Jerks (60/43 kg)', unit: 'Zeit (mm:ss)' },
+  { id: 'isabel', name: 'ISABEL', type: 'For Time', category: 'Girl',
+    desc: '30 Snatches (60/43 kg)', unit: 'Zeit (mm:ss)' },
+  { id: 'jackie', name: 'JACKIE', type: 'For Time', category: 'Girl',
+    desc: '1000m Row\n50 Thrusters (20 kg)\n30 Pull-ups', unit: 'Zeit (mm:ss)' },
+  { id: 'karen', name: 'KAREN', type: 'For Time', category: 'Girl',
+    desc: '150 Wall Ball Shots (9/6 kg)', unit: 'Zeit (mm:ss)' },
+  { id: 'kelly', name: 'KELLY', type: 'For Time', category: 'Girl',
+    desc: '5 Rounds\n400m Run\n30 Box Jumps (60/50 cm)\n30 Wall Ball Shots (9/6 kg)', unit: 'Zeit (mm:ss)' },
+  { id: 'linda', name: 'LINDA', type: 'For Time', category: 'Girl',
+    desc: '10-9-8-7-6-5-4-3-2-1 Reps\nDeadlift (1.5x BW)\nBench Press (BW)\nClean (0.75x BW)', unit: 'Zeit (mm:ss)' },
+  { id: 'mary', name: 'MARY', type: 'AMRAP', category: 'Girl',
+    desc: '20 min AMRAP\n5 Handstand Push-ups\n10 Pistols\n15 Pull-ups', unit: 'Runden + Reps' },
+  { id: 'nancy', name: 'NANCY', type: 'For Time', category: 'Girl',
+    desc: '5 Rounds\n400m Run\n15 Overhead Squats (43/29 kg)', unit: 'Zeit (mm:ss)' },
+  { id: 'murph', name: 'MURPH', type: 'For Time', category: 'Hero',
+    desc: '1 Mile Run\n100 Pull-ups\n200 Push-ups\n300 Air Squats\n1 Mile Run\n(mit oder ohne 9 kg Weste)', unit: 'Zeit (mm:ss)' },
+  { id: 'dt', name: 'DT', type: 'For Time', category: 'Hero',
+    desc: '5 Rounds\n12 Deadlifts (70/47 kg)\n9 Hang Power Cleans\n6 Push Jerks', unit: 'Zeit (mm:ss)' },
+  { id: 'chad', name: 'CHAD', type: 'For Time', category: 'Hero',
+    desc: '1000 Step-ups (60/45 cm)\nmit 20 kg Weste', unit: 'Zeit (mm:ss)' },
+  { id: 'nutts', name: 'NUTTS', type: 'For Time', category: 'Hero',
+    desc: '10 Muscle-ups\n100m Sprint\n50 Dips\n100m Sprint\n20 Push-ups\n100m Sprint', unit: 'Zeit (mm:ss)' },
+  { id: 'jt', name: 'JT', type: 'For Time', category: 'Hero',
+    desc: '21-15-9 Reps\nHandstand Push-ups\nRing Dips\nPush-ups', unit: 'Zeit (mm:ss)' },
+  { id: 'open24_1', name: '24.1', type: 'AMRAP', category: 'Open',
+    desc: '15 min AMRAP\n21 Cal Row\n21 Thrusters (43/29 kg)\n3 Bar Muscle-ups', unit: 'Runden + Reps' },
+  { id: 'open24_2', name: '24.2', type: 'For Time', category: 'Open',
+    desc: '4 Rounds for time:\n10 Clean & Jerks (70/47 kg)\n10 Bar Muscle-ups', unit: 'Zeit (mm:ss)' },
+  { id: 'open24_3', name: '24.3', type: 'For Time', category: 'Open',
+    desc: 'For Time:\n5 Rounds: 5 Shoulder-to-OH (70/47 kg), 50 Double-Unders\n100 Pull-ups\n5 Rounds: 5 Shoulder-to-OH, 50 Double-Unders', unit: 'Zeit (mm:ss)' },
+  { id: 'back_squat', name: '1RM BACK SQUAT', type: 'Max Load', category: 'Strength',
+    desc: 'Back Squat 1 Rep Max', unit: 'kg' },
+  { id: 'clean_jerk', name: '1RM CLEAN & JERK', type: 'Max Load', category: 'Strength',
+    desc: 'Clean & Jerk 1 Rep Max', unit: 'kg' },
+  { id: 'snatch', name: '1RM SNATCH', type: 'Max Load', category: 'Strength',
+    desc: 'Snatch 1 Rep Max', unit: 'kg' },
+  { id: 'deadlift', name: '1RM DEADLIFT', type: 'Max Load', category: 'Strength',
+    desc: 'Deadlift 1 Rep Max', unit: 'kg' },
+  { id: 'shoulder_press', name: '1RM SHOULDER PRESS', type: 'Max Load', category: 'Strength',
+    desc: 'Strict Press 1 Rep Max', unit: 'kg' },
+  { id: 'fgb', name: 'FIGHT GONE BAD', type: 'AMRAP', category: 'Benchmark',
+    desc: '3 Rounds, 1 min each station, no rest:\nWall Ball (9/6 kg)\nSDHp (35/25 kg)\nBox Jump (50/40 cm)\nPush Press (35/25 kg)\n1 min Row (Cal)\n1 min Rest', unit: 'Punkte' },
+  { id: 'cf_total', name: 'CF TOTAL', type: 'Max Load', category: 'Benchmark',
+    desc: 'Combined 1RM:\nBack Squat\nShoulder Press\nDeadlift', unit: 'kg' },
+];
+
+const CATEGORIES = ['Alle', 'Girl', 'Hero', 'Open', 'Strength', 'Benchmark'];
+
+// ── STORAGE ──────────────────────────────────────────────────────────────────
+function loadDB() {
+  try { DB = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { users: {}, scores: {} }; } catch(e) { DB = { users: {}, scores: {} }; }
+  if (!DB.users) DB.users = {};
+  if (!DB.scores) DB.scores = {};
+}
+function saveDB() { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }
+
+// ── AUTH ─────────────────────────────────────────────────────────────────────
+function showAuthTab(t) {
+  document.getElementById('auth-login').style.display = t === 'login' ? '' : 'none';
+  document.getElementById('auth-register').style.display = t === 'register' ? '' : 'none';
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i === 0) === (t === 'login')));
+}
+
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.className = 'msg ' + type;
+  el.textContent = text;
+}
+
+function doRegister() {
+  const first = document.getElementById('reg-first').value.trim();
+  const last = document.getElementById('reg-last').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const pw = document.getElementById('reg-pw').value;
+  const box = document.getElementById('reg-box').value.trim();
+  if (!first || !last || !email || !pw) return showMsg('auth-msg', 'Bitte alle Pflichtfelder ausfüllen.', 'error');
+  if (pw.length < 6) return showMsg('auth-msg', 'Passwort muss mindestens 6 Zeichen lang sein.', 'error');
+  if (DB.users[email]) return showMsg('auth-msg', 'Diese E-Mail ist bereits registriert.', 'error');
+  DB.users[email] = { email, first, last, box, pw, since: new Date().toISOString().split('T')[0] };
+  saveDB();
+  showMsg('auth-msg', 'Konto erstellt! Du kannst dich jetzt einloggen.', 'success');
+  showAuthTab('login');
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pw = document.getElementById('login-pw').value;
+  if (!DB.users[email] || DB.users[email].pw !== pw) return showMsg('auth-msg', 'E-Mail oder Passwort falsch.', 'error');
+  currentUser = DB.users[email];
+  enterApp();
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('screen-app').classList.remove('active');
+  document.getElementById('screen-auth').classList.add('active');
+}
+
+function enterApp() {
+  document.getElementById('screen-auth').classList.remove('active');
+  document.getElementById('screen-app').classList.add('active');
+  const initials = (currentUser.first[0] + currentUser.last[0]).toUpperCase();
+  document.getElementById('nav-avatar').textContent = initials;
+  document.getElementById('nav-name').textContent = currentUser.first + ' ' + currentUser.last;
+  document.getElementById('profile-avatar').textContent = initials;
+  document.getElementById('profile-name').textContent = currentUser.first + ' ' + currentUser.last;
+  document.getElementById('profile-since').textContent = 'Mitglied seit ' + currentUser.since + (currentUser.box ? ' · ' + currentUser.box : '');
+  switchView('benchmarks');
+  renderBenchmarks();
+  renderProfile();
+}
+
+// ── VIEWS ─────────────────────────────────────────────────────────────────────
+function switchView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.toggle('active', el.id === 'view-' + v));
+  document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  if (v === 'custom') renderCustomWODs();
+  if (v === 'profile') renderProfile();
+}
+
+// ── BENCHMARKS ────────────────────────────────────────────────────────────────
+let activeCat = 'Alle';
+function renderBenchmarks() {
+  const q = (document.getElementById('bench-search').value || '').toLowerCase();
+  const filtered = BENCHMARKS.filter(w =>
+    (activeCat === 'Alle' || w.category === activeCat) &&
+    (!q || w.name.toLowerCase().includes(q) || w.desc.toLowerCase().includes(q))
+  );
+  // filters
+  const fRow = document.getElementById('bench-filters');
+  fRow.innerHTML = CATEGORIES.map(c =>
+    `<button class="filter-btn${activeCat === c ? ' active' : ''}" onclick="setCat('${c}')">${c}</button>`
+  ).join('');
+  // list
+  const list = document.getElementById('bench-list');
+  if (!filtered.length) { list.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Keine Workouts gefunden.</div>`; return; }
+  list.innerHTML = filtered.map(w => {
+    const pr = getBestScore(w.id);
+    return `<div class="wod-card" onclick="openScoreModal('${w.id}', 'bench')">
+      <div class="wod-top">
+        <div class="wod-name">${w.name}</div>
+        <span class="wod-type">${w.category}</span>
+      </div>
+      <div class="wod-desc">${w.desc.replace(/\n/g,'<br>')}</div>
+      ${pr ? `<div class="wod-pr"><span class="pr-label">Beste:</span><span class="pr-val">${pr.val}</span><span class="pr-date">${pr.date}</span></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function setCat(c) { activeCat = c; renderBenchmarks(); }
+
+// ── CUSTOM WODs ───────────────────────────────────────────────────────────────
+function saveCustomWOD() {
+  const name = document.getElementById('wod-name').value.trim().toUpperCase();
+  const wtype = document.getElementById('wod-wtype').value;
+  const desc = document.getElementById('wod-desc').value.trim();
+  const unit = document.getElementById('wod-unit').value;
+  if (!name || !desc) return showMsg('add-msg', 'Name und Beschreibung sind Pflichtfelder.', 'error');
+  if (!DB.scores[currentUser.email]) DB.scores[currentUser.email] = {};
+  const id = 'custom_' + Date.now();
+  if (!DB.scores[currentUser.email]._customWODs) DB.scores[currentUser.email]._customWODs = [];
+  DB.scores[currentUser.email]._customWODs.push({ id, name, type: wtype, desc, unit, category: 'Eigene' });
+  saveDB();
+  showMsg('add-msg', 'Workout gespeichert!', 'success');
+  document.getElementById('wod-name').value = '';
+  document.getElementById('wod-desc').value = '';
+}
+
+function renderCustomWODs() {
+  const list = document.getElementById('custom-list');
+  const wods = getCustomWODs();
+  if (!wods.length) {
+    list.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Noch keine eigenen Workouts.<br>Leg eines im Tab "Anlegen" an.</div>`;
+    return;
+  }
+  list.innerHTML = wods.map(w => {
+    const pr = getBestScore(w.id);
+    return `<div class="wod-card" onclick="openScoreModal('${w.id}', 'custom')">
+      <div class="wod-top"><div class="wod-name">${w.name}</div><span class="wod-type">${w.type}</span></div>
+      <div class="wod-desc">${w.desc.replace(/\n/g,'<br>')}</div>
+      ${pr ? `<div class="wod-pr"><span class="pr-label">Beste:</span><span class="pr-val">${pr.val}</span><span class="pr-date">${pr.date}</span></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function getCustomWODs() {
+  if (!DB.scores[currentUser.email]) return [];
+  return DB.scores[currentUser.email]._customWODs || [];
+}
+
+// ── SCORES ────────────────────────────────────────────────────────────────────
+function getUserScores(wodId) {
+  if (!DB.scores[currentUser.email]) return [];
+  return (DB.scores[currentUser.email][wodId] || []);
+}
+
+function getBestScore(wodId) {
+  const scores = getUserScores(wodId);
+  if (!scores.length) return null;
+  const s = scores[0];
+  return { val: s.val, date: s.date };
+}
+
+function openScoreModal(wodId, source) {
+  const wod = source === 'bench' ? BENCHMARKS.find(w => w.id === wodId) : getCustomWODs().find(w => w.id === wodId);
+  if (!wod) return;
+  currentWOD = wod;
+  document.getElementById('modal-wod-name').textContent = wod.name;
+  document.getElementById('modal-wod-desc').innerHTML = wod.desc.replace(/\n/g, '<br>') + `<br><span style="color:var(--accent);font-weight:600;font-size:12px;">${wod.type} · Score: ${wod.unit}</span>`;
+  document.getElementById('score-label').textContent = wod.unit;
+  document.getElementById('score-val-input').placeholder = wod.unit === 'Zeit (mm:ss)' ? '12:34' : wod.unit === 'kg' ? '100' : wod.unit === 'Runden + Reps' ? '8+12' : '–';
+  document.getElementById('score-date-input').value = new Date().toISOString().split('T')[0];
+  document.getElementById('score-val-input').value = '';
+  document.getElementById('score-note-input').value = '';
+  document.getElementById('score-msg').textContent = '';
+  renderScoreList();
+  document.getElementById('score-overlay').classList.add('open');
+}
+
+function closeScoreModal(e, force) {
+  if (force || (e && e.target === document.getElementById('score-overlay'))) {
+    document.getElementById('score-overlay').classList.remove('open');
+    currentWOD = null;
+    renderBenchmarks();
+    renderCustomWODs();
+  }
+}
+
+function saveScore() {
+  const val = document.getElementById('score-val-input').value.trim();
+  const date = document.getElementById('score-date-input').value;
+  const note = document.getElementById('score-note-input').value.trim();
+  if (!val) return showMsg('score-msg', 'Bitte einen Score eingeben.', 'error');
+  if (!date) return showMsg('score-msg', 'Bitte ein Datum wählen.', 'error');
+  if (!DB.scores[currentUser.email]) DB.scores[currentUser.email] = {};
+  if (!DB.scores[currentUser.email][currentWOD.id]) DB.scores[currentUser.email][currentWOD.id] = [];
+  DB.scores[currentUser.email][currentWOD.id].unshift({ val, date, note, ts: Date.now() });
+  saveDB();
+  showMsg('score-msg', 'Score gespeichert!', 'success');
+  document.getElementById('score-val-input').value = '';
+  document.getElementById('score-note-input').value = '';
+  renderScoreList();
+  renderProfile();
+}
+
+function deleteScore(wodId, idx) {
+  if (!confirm('Score löschen?')) return;
+  DB.scores[currentUser.email][wodId].splice(idx, 1);
+  saveDB();
+  renderScoreList();
+  renderProfile();
+}
+
+function renderScoreList() {
+  const scores = getUserScores(currentWOD.id);
+  const el = document.getElementById('modal-score-list');
+  if (!scores.length) { el.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:12px 0;">Noch kein Score eingetragen.</div>`; return; }
+  el.innerHTML = scores.map((s, i) => `
+    <div class="score-row">
+      <div>
+        <div class="score-val">${s.val}</div>
+        <div class="score-info">${s.date}${s.note ? ' · ' + s.note : ''}</div>
+      </div>
+      <button class="btn-sm btn-danger" onclick="deleteScore('${currentWOD.id}', ${i})">Löschen</button>
+    </div>
+  `).join('');
+}
+
+// ── PROFILE ───────────────────────────────────────────────────────────────────
+function renderProfile() {
+  if (!currentUser) return;
+  const userScores = DB.scores[currentUser.email] || {};
+  let totalScores = 0, wodsDone = 0;
+  const recent = [];
+  Object.entries(userScores).forEach(([k, v]) => {
+    if (k === '_customWODs') return;
+    if (Array.isArray(v) && v.length > 0) {
+      wodsDone++;
+      totalScores += v.length;
+      v.forEach(s => recent.push({ wodId: k, ...s }));
+    }
+  });
+  recent.sort((a, b) => b.ts - a.ts);
+  const customCount = (userScores._customWODs || []).length;
+
+  document.getElementById('profile-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-val">${totalScores}</div><div class="stat-lbl">Scores</div></div>
+    <div class="stat-card"><div class="stat-val">${wodsDone}</div><div class="stat-lbl">WODs gemacht</div></div>
+    <div class="stat-card"><div class="stat-val">${customCount}</div><div class="stat-lbl">Eigene WODs</div></div>
+  `;
+
+  const recentEl = document.getElementById('profile-recent');
+  if (!recent.length) { recentEl.innerHTML = `<div class="empty" style="padding:1.5rem 0">Noch keine Scores eingetragen.</div>`; return; }
+  recentEl.innerHTML = recent.slice(0, 15).map(s => {
+    const wod = BENCHMARKS.find(w => w.id === s.wodId) || (getCustomWODs().find(w => w.id === s.wodId));
+    const name = wod ? wod.name : s.wodId;
+    return `<div class="score-row" style="margin-bottom:8px;">
+      <div>
+        <div style="font-weight:600;font-size:14px;">${name}</div>
+        <div class="score-info">${s.date}${s.note ? ' · ' + s.note : ''}</div>
+      </div>
+      <div class="score-val">${s.val}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+loadDB();
+</script>
+</body>
+</html>
