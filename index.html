@@ -217,32 +217,32 @@ let DB={users:{},scores:{}},CU=null,CW=null,AC='Alle',AY='Alle';
 
 const WODs=[
   // GIRLS
-  {id:'annie',name:'ANNIE',type:'For Time',cat:'Girl',desc:'50-40-30-20-10 Reps:\nDouble-Unders\nSit-ups',unit:'Zeit (mm:ss)'},
-  {id:'angie',name:'ANGIE',type:'For Time',cat:'Girl',desc:'100 Pull-ups\n100 Push-ups\n100 Sit-ups\n100 Air Squats',unit:'Zeit (mm:ss)'},
-  {id:'barbara',name:'BARBARA',type:'For Time',cat:'Girl',desc:'5 Rounds (3 min Pause):\n20 Pull-ups\n30 Push-ups\n40 Sit-ups\n50 Air Squats',unit:'Zeit (mm:ss)'},
-  {id:'chelsea',name:'CHELSEA',type:'EMOM',cat:'Girl',desc:'30 min EMOM:\n5 Pull-ups\n10 Push-ups\n15 Air Squats',unit:'Runden + Reps'},
-  {id:'cindy',name:'CINDY',type:'AMRAP',cat:'Girl',desc:'20 min AMRAP:\n5 Pull-ups\n10 Push-ups\n15 Air Squats',unit:'Runden + Reps'},
-  {id:'diane',name:'DIANE',type:'For Time',cat:'Girl',desc:'21-15-9 Reps:\nDeadlift (102/70 kg)\nHandstand Push-ups',unit:'Zeit (mm:ss)'},
-  {id:'elizabeth',name:'ELIZABETH',type:'For Time',cat:'Girl',desc:'21-15-9 Reps:\nClean (60/43 kg)\nRing Dips',unit:'Zeit (mm:ss)'},
-  {id:'fran',name:'FRAN',type:'For Time',cat:'Girl',desc:'21-15-9 Reps:\nThrusters (42.5/30 kg)\nPull-ups',unit:'Zeit (mm:ss)'},
-  {id:'grace',name:'GRACE',type:'For Time',cat:'Girl',desc:'30 Clean & Jerks (60/43 kg)',unit:'Zeit (mm:ss)'},
-  {id:'helen',name:'HELEN',type:'For Time',cat:'Girl',desc:'3 Rounds:\n400m Run\n21 KB Swings (24/16 kg)\n12 Pull-ups',unit:'Zeit (mm:ss)'},
-  {id:'isabel',name:'ISABEL',type:'For Time',cat:'Girl',desc:'30 Snatches (60/43 kg)',unit:'Zeit (mm:ss)'},
-  {id:'jackie',name:'JACKIE',type:'For Time',cat:'Girl',desc:'1000m Row\n50 Thrusters (20 kg)\n30 Pull-ups',unit:'Zeit (mm:ss)'},
-  {id:'karen',name:'KAREN',type:'For Time',cat:'Girl',desc:'150 Wall Ball Shots (9/6 kg)',unit:'Zeit (mm:ss)'},
-  {id:'kelly',name:'KELLY',type:'For Time',cat:'Girl',desc:'5 Rounds:\n400m Run\n30 Box Jumps (60/50 cm)\n30 Wall Ball (9/6 kg)',unit:'Zeit (mm:ss)'},
-  {id:'linda',name:'LINDA',type:'For Time',cat:'Girl',desc:'10-9-8-7-6-5-4-3-2-1 Reps:\nDeadlift (1.5x BW)\nBench Press (BW)\nClean (0.75x BW)',unit:'Zeit (mm:ss)'},
-  {id:'mary',name:'MARY',type:'AMRAP',cat:'Girl',desc:'20 min AMRAP:\n5 HSPU\n10 Pistols\n15 Pull-ups',unit:'Runden + Reps'},
-  {id:'nancy',name:'NANCY',type:'For Time',cat:'Girl',desc:'5 Rounds:\n400m Run\n15 OHS (43/29 kg)',unit:'Zeit (mm:ss)'},
+  {id:'annie',name:'ANNIE',type:'For Time',cat:'Girls',desc:'50-40-30-20-10 Reps:\nDouble-Unders\nSit-ups',unit:'Zeit (mm:ss)'},
+  {id:'angie',name:'ANGIE',type:'For Time',cat:'Girls',desc:'100 Pull-ups\n100 Push-ups\n100 Sit-ups\n100 Air Squats',unit:'Zeit (mm:ss)'},
+  {id:'barbara',name:'BARBARA',type:'For Time',cat:'Girls',desc:'5 Rounds (3 min Pause):\n20 Pull-ups\n30 Push-ups\n40 Sit-ups\n50 Air Squats',unit:'Zeit (mm:ss)'},
+  {id:'chelsea',name:'CHELSEA',type:'EMOM',cat:'Girls',desc:'30 min EMOM:\n5 Pull-ups\n10 Push-ups\n15 Air Squats',unit:'Runden + Reps'},
+  {id:'cindy',name:'CINDY',type:'AMRAP',cat:'Girls',desc:'20 min AMRAP:\n5 Pull-ups\n10 Push-ups\n15 Air Squats',unit:'Runden + Reps'},
+  {id:'diane',name:'DIANE',type:'For Time',cat:'Girls',desc:'21-15-9 Reps:\nDeadlift (102/70 kg)\nHandstand Push-ups',unit:'Zeit (mm:ss)'},
+  {id:'elizabeth',name:'ELIZABETH',type:'For Time',cat:'Girls',desc:'21-15-9 Reps:\nClean (60/43 kg)\nRing Dips',unit:'Zeit (mm:ss)'},
+  {id:'fran',name:'FRAN',type:'For Time',cat:'Girls',desc:'21-15-9 Reps:\nThrusters (42.5/30 kg)\nPull-ups',unit:'Zeit (mm:ss)'},
+  {id:'grace',name:'GRACE',type:'For Time',cat:'Girls',desc:'30 Clean & Jerks (60/43 kg)',unit:'Zeit (mm:ss)'},
+  {id:'helen',name:'HELEN',type:'For Time',cat:'Girls',desc:'3 Rounds:\n400m Run\n21 KB Swings (24/16 kg)\n12 Pull-ups',unit:'Zeit (mm:ss)'},
+  {id:'isabel',name:'ISABEL',type:'For Time',cat:'Girls',desc:'30 Snatches (60/43 kg)',unit:'Zeit (mm:ss)'},
+  {id:'jackie',name:'JACKIE',type:'For Time',cat:'Girls',desc:'1000m Row\n50 Thrusters (20 kg)\n30 Pull-ups',unit:'Zeit (mm:ss)'},
+  {id:'karen',name:'KAREN',type:'For Time',cat:'Girls',desc:'150 Wall Ball Shots (9/6 kg)',unit:'Zeit (mm:ss)'},
+  {id:'kelly',name:'KELLY',type:'For Time',cat:'Girls',desc:'5 Rounds:\n400m Run\n30 Box Jumps (60/50 cm)\n30 Wall Ball (9/6 kg)',unit:'Zeit (mm:ss)'},
+  {id:'linda',name:'LINDA',type:'For Time',cat:'Girls',desc:'10-9-8-7-6-5-4-3-2-1 Reps:\nDeadlift (1.5x BW)\nBench Press (BW)\nClean (0.75x BW)',unit:'Zeit (mm:ss)'},
+  {id:'mary',name:'MARY',type:'AMRAP',cat:'Girls',desc:'20 min AMRAP:\n5 HSPU\n10 Pistols\n15 Pull-ups',unit:'Runden + Reps'},
+  {id:'nancy',name:'NANCY',type:'For Time',cat:'Girls',desc:'5 Rounds:\n400m Run\n15 OHS (43/29 kg)',unit:'Zeit (mm:ss)'},
   // GIRLS — neu
-  {id:'amanda',name:'AMANDA',type:'For Time',cat:'Girl',desc:'9-7-5 Reps:\nMuscle-ups\nSquat Snatches (61/43 kg)',unit:'Zeit (mm:ss)'},
-  {id:'eva',name:'EVA',type:'For Time',cat:'Girl',desc:'5 Rounds:\n800m Run\n30 KB Swings (32/24 kg)\n30 Pull-ups',unit:'Zeit (mm:ss)'},
-  {id:'gwen',name:'GWEN',type:'Max Load',cat:'Girl',desc:'15-12-9 Reps:\nClean & Jerk\nTouch-and-go vom Boden\nKein Ablegen — gleiches Gewicht für alle Sätze\nRest nach Bedarf',unit:'kg'},
-  {id:'hope',name:'HOPE',type:'AMRAP',cat:'Girl',desc:'3 Rounds, 1 min each:\nBurpees\nPower Snatches (35/25 kg)\nBox Jumps (60/50 cm)\nThrusters (35/25 kg)\nC2B Pull-ups\n1 min Rest',unit:'Punkte'},
-  {id:'nasty_girls',name:'NASTY GIRLS',type:'For Time',cat:'Girl',desc:'3 Rounds:\n50 Air Squats\n7 Muscle-ups\n10 Hang Power Cleans (61/43 kg)',unit:'Zeit (mm:ss)'},
-  {id:'nicole',name:'NICOLE',type:'AMRAP',cat:'Girl',desc:'20 min AMRAP:\n400m Run\nMax Pull-ups\n(Runde endet wenn du von der Stange kommst)',unit:'Runden + Reps'},
-  {id:'patricia',name:'PATRICIA',type:'For Time',cat:'Girl',desc:'5 Rounds:\n400m Run\n10 Rope Climbs (4.5 m)',unit:'Zeit (mm:ss)'},
-  {id:'randy',name:'RANDY',type:'For Time',cat:'Girl',desc:'75 Power Snatches (35/25 kg)',unit:'Zeit (mm:ss)'},
+  {id:'amanda',name:'AMANDA',type:'For Time',cat:'Girls',desc:'9-7-5 Reps:\nMuscle-ups\nSquat Snatches (61/43 kg)',unit:'Zeit (mm:ss)'},
+  {id:'eva',name:'EVA',type:'For Time',cat:'Girls',desc:'5 Rounds:\n800m Run\n30 KB Swings (32/24 kg)\n30 Pull-ups',unit:'Zeit (mm:ss)'},
+  {id:'gwen',name:'GWEN',type:'Max Load',cat:'Girls',desc:'15-12-9 Reps:\nClean & Jerk\nTouch-and-go vom Boden\nKein Ablegen — gleiches Gewicht für alle Sätze\nRest nach Bedarf',unit:'kg'},
+  {id:'hope',name:'HOPE',type:'AMRAP',cat:'Girls',desc:'3 Rounds, 1 min each:\nBurpees\nPower Snatches (35/25 kg)\nBox Jumps (60/50 cm)\nThrusters (35/25 kg)\nC2B Pull-ups\n1 min Rest',unit:'Punkte'},
+  {id:'nasty_girls',name:'NASTY GIRLS',type:'For Time',cat:'Girls',desc:'3 Rounds:\n50 Air Squats\n7 Muscle-ups\n10 Hang Power Cleans (61/43 kg)',unit:'Zeit (mm:ss)'},
+  {id:'nicole',name:'NICOLE',type:'AMRAP',cat:'Girls',desc:'20 min AMRAP:\n400m Run\nMax Pull-ups\n(Runde endet wenn du von der Stange kommst)',unit:'Runden + Reps'},
+  {id:'patricia',name:'PATRICIA',type:'For Time',cat:'Girls',desc:'5 Rounds:\n400m Run\n10 Rope Climbs (4.5 m)',unit:'Zeit (mm:ss)'},
+  {id:'randy',name:'RANDY',type:'For Time',cat:'Hero',desc:'75 Power Snatches (35/25 kg)',unit:'Zeit (mm:ss)'},
   // HEROES
   {id:'chad',name:'CHAD',type:'For Time',cat:'Hero',desc:'1.000 Step-ups (60/50 cm)\nmit 20 kg Ruck/Weste',unit:'Zeit (mm:ss)'},
   {id:'daniel',name:'DANIEL',type:'AMRAP',cat:'Hero',desc:'20 min AMRAP:\n24 Box Jumps (60 cm)\n24 Push Presses (52/35 kg)\n24 Pull-ups',unit:'Runden + Reps'},
@@ -298,7 +298,7 @@ const WODs=[
   {id:'o263',name:'26.3',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 16 min) — 6 Rounds:\nRds 1-2: 12 Burpees over Bar + 12 Cleans + 12 Thrusters\nRds 3-4: gleich, schwerer\nRds 5-6: gleich, am schwersten\n♀ 29/34/38 kg · ♂ 43/52/61 kg',unit:'Zeit (mm:ss)'},
 ];
 
-const CATS=['Alle','Girl','Hero','Benchmark','Strength','Open'];
+const CATS=['Alle','Girls','Hero','Benchmark','Strength','Open'];
 const YRS=['Alle','2024','2025','2026'];
 
 function ldb(){
