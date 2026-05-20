@@ -96,7 +96,7 @@ textarea{resize:vertical;min-height:70px;}
 <div class="sc on" id="sa">
   <div class="aw">
     <div class="ac">
-      <div class="at">BOX DB</div>
+      <div class="at">LOG YOUR SCORE</div>
       <div class="as">CrossFit Amstetten — WOD Score Tracker</div>
       <div class="tr">
         <button class="tb on" onclick="sat('login')">Anmelden</button>
@@ -125,7 +125,7 @@ textarea{resize:vertical;min-height:70px;}
 <!-- APP -->
 <div class="sc" id="sapp">
   <nav>
-    <div class="logo">BOX DB</div>
+    <div class="logo">LOG YOUR SCORE</div>
     <div class="nu">
       <div class="av" id="navav"></div>
       <span class="nn" id="navnm">–</span>
@@ -234,16 +234,31 @@ const WODs=[
   {id:'linda',name:'LINDA',type:'For Time',cat:'Girl',desc:'10-9-8-7-6-5-4-3-2-1 Reps:\nDeadlift (1.5x BW)\nBench Press (BW)\nClean (0.75x BW)',unit:'Zeit (mm:ss)'},
   {id:'mary',name:'MARY',type:'AMRAP',cat:'Girl',desc:'20 min AMRAP:\n5 HSPU\n10 Pistols\n15 Pull-ups',unit:'Runden + Reps'},
   {id:'nancy',name:'NANCY',type:'For Time',cat:'Girl',desc:'5 Rounds:\n400m Run\n15 OHS (43/29 kg)',unit:'Zeit (mm:ss)'},
+  // GIRLS — neu
+  {id:'amanda',name:'AMANDA',type:'For Time',cat:'Girl',desc:'9-7-5 Reps:\nMuscle-ups\nSquat Snatches (61/43 kg)',unit:'Zeit (mm:ss)'},
+  {id:'eva',name:'EVA',type:'For Time',cat:'Girl',desc:'5 Rounds:\n800m Run\n30 KB Swings (32/24 kg)\n30 Pull-ups',unit:'Zeit (mm:ss)'},
+  {id:'gwen',name:'GWEN',type:'Max Load',cat:'Girl',desc:'15-12-9 Reps:\nClean & Jerk\nTouch-and-go vom Boden\nKein Ablegen — gleiches Gewicht für alle Sätze\nRest nach Bedarf',unit:'kg'},
+  {id:'hope',name:'HOPE',type:'AMRAP',cat:'Girl',desc:'3 Rounds, 1 min each:\nBurpees\nPower Snatches (35/25 kg)\nBox Jumps (60/50 cm)\nThrusters (35/25 kg)\nC2B Pull-ups\n1 min Rest',unit:'Punkte'},
+  {id:'nasty_girls',name:'NASTY GIRLS',type:'For Time',cat:'Girl',desc:'3 Rounds:\n50 Air Squats\n7 Muscle-ups\n10 Hang Power Cleans (61/43 kg)',unit:'Zeit (mm:ss)'},
+  {id:'nicole',name:'NICOLE',type:'AMRAP',cat:'Girl',desc:'20 min AMRAP:\n400m Run\nMax Pull-ups\n(Runde endet wenn du von der Stange kommst)',unit:'Runden + Reps'},
+  {id:'patricia',name:'PATRICIA',type:'For Time',cat:'Girl',desc:'5 Rounds:\n400m Run\n10 Rope Climbs (4.5 m)',unit:'Zeit (mm:ss)'},
+  {id:'randy',name:'RANDY',type:'For Time',cat:'Girl',desc:'75 Power Snatches (35/25 kg)',unit:'Zeit (mm:ss)'},
   // HEROES
   {id:'chad',name:'CHAD',type:'For Time',cat:'Hero',desc:'1.000 Step-ups (60/50 cm)\nmit 20 kg Ruck/Weste',unit:'Zeit (mm:ss)'},
+  {id:'daniel',name:'DANIEL',type:'AMRAP',cat:'Hero',desc:'20 min AMRAP:\n24 Box Jumps (60 cm)\n24 Push Presses (52/35 kg)\n24 Pull-ups',unit:'Runden + Reps'},
+  {id:'desforges',name:'DESFORGES',type:'For Time',cat:'Hero',desc:'5 Rounds:\n225 lb Deadlifts (102/70 kg), 12 Reps\n20 Pull-ups\nClean & Jerks (61/43 kg), 12 Reps\n20 K2E',unit:'Zeit (mm:ss)'},
   {id:'dt',name:'DT',type:'For Time',cat:'Hero',desc:'5 Rounds:\n12 Deadlifts (70/47 kg)\n9 Hang Power Cleans\n6 Push Jerks',unit:'Zeit (mm:ss)'},
   {id:'glen',name:'GLEN',type:'For Time',cat:'Hero',desc:'30 Clean & Jerks (60/43 kg)\n1 Mile Run\n10 Rope Climbs (4.5 m)\n1 Mile Run\n100 Burpees',unit:'Zeit (mm:ss)'},
+  {id:'jack',name:'JACK',type:'AMRAP',cat:'Hero',desc:'20 min AMRAP:\n10 Push Presses (52/35 kg)\n10 KB Swings (32/24 kg)\n10 Box Jumps (60/50 cm)',unit:'Runden + Reps'},
   {id:'jt',name:'JT',type:'For Time',cat:'Hero',desc:'21-15-9 Reps:\nHSPU\nRing Dips\nPush-ups',unit:'Zeit (mm:ss)'},
   {id:'loredo',name:'LOREDO',type:'For Time',cat:'Hero',desc:'6 Rounds:\n24 Air Squats\n24 Push-ups\n24 Walking Lunges\n400m Run',unit:'Zeit (mm:ss)'},
+  {id:'mr_joshua',name:'MR. JOSHUA',type:'For Time',cat:'Hero',desc:'5 Rounds:\n400m Run\n30 GHD Sit-ups\n15 Deadlifts (102/70 kg)',unit:'Zeit (mm:ss)'},
   {id:'murph',name:'MURPH',type:'For Time',cat:'Hero',desc:'1 Mile Run\n100 Pull-ups\n200 Push-ups\n300 Air Squats\n1 Mile Run\n(mit/ohne 9 kg Weste)',unit:'Zeit (mm:ss)'},
   {id:'nate',name:'NATE',type:'AMRAP',cat:'Hero',desc:'20 min AMRAP:\n2 Muscle-ups\n4 HSPU\n8 KB Swings (32/24 kg)',unit:'Runden + Reps'},
   {id:'nutts',name:'NUTTS',type:'For Time',cat:'Hero',desc:'10 Muscle-ups · 100m Sprint\n50 Ring Dips · 100m Sprint\n20 Push-ups · 100m Sprint\n50 Air Squats · 100m Sprint',unit:'Zeit (mm:ss)'},
+  {id:'rahoi',name:'RAHOI',type:'AMRAP',cat:'Hero',desc:'12 min AMRAP:\n12 Box Jumps (60 cm)\n6 Thrusters (43/29 kg)\n6 Bar-facing Burpees',unit:'Runden + Reps'},
   {id:'ryan',name:'RYAN',type:'For Time',cat:'Hero',desc:'5 Rounds:\n7 Muscle-ups\n21 Burpees',unit:'Zeit (mm:ss)'},
+  {id:'the_seven',name:'THE SEVEN',type:'For Time',cat:'Hero',desc:'7 Rounds:\n7 HSPU\n7 Thrusters (61/43 kg)\n7 Knees-to-Elbows\n7 Deadlifts (102/70 kg)\n7 Burpees\n7 KB Swings (32/24 kg)\n7 Pull-ups',unit:'Zeit (mm:ss)'},
   {id:'tommy_v',name:'TOMMY V',type:'For Time',cat:'Hero',desc:'21-15-9 Reps:\nThruster (61/43 kg)\nRope Climbs (4.5 m)',unit:'Zeit (mm:ss)'},
   // BENCHMARKS
   {id:'badger',name:'BADGER',type:'For Time',cat:'Benchmark',desc:'3 Rounds:\n30 Squat Cleans (43/29 kg)\n30 Pull-ups\n800m Run',unit:'Zeit (mm:ss)'},
@@ -251,6 +266,10 @@ const WODs=[
   {id:'dbp',name:'DEATH BY PULL-UPS',type:'EMOM',cat:'Benchmark',desc:'Min 1: 1 Pull-up\nMin 2: 2 Pull-ups\n… bis zur Aufgabe',unit:'Runden + Reps'},
   {id:'fgb',name:'FIGHT GONE BAD',type:'AMRAP',cat:'Benchmark',desc:'3 Rounds, 1 min each:\nWall Ball (9/6 kg) · SDHP (35/25 kg)\nBox Jump (50/40 cm) · Push Press (35/25 kg)\nRow (Cal) — 1 min Rest',unit:'Punkte'},
   {id:'f50',name:'FILTHY FIFTY',type:'For Time',cat:'Benchmark',desc:'50 Box Jumps (60/50 cm)\n50 Jumping Pull-ups\n50 KB Swings (16/12 kg)\n50 Walking Lunges\n50 K2E · 50 Push Press (20 kg)\n50 Hip Extensions\n50 Wall Ball (9/6 kg)\n50 Burpees · 50 Double-Unders',unit:'Zeit (mm:ss)'},
+  {id:'g45',name:'GHOST',type:'AMRAP',cat:'Benchmark',desc:'6 Rounds, je 1 min:\n500m Row\n40 Box Jumps (60/50 cm)\n30 Burpees\n— kein Rest zwischen den Stationen',unit:'Runden + Reps'},
+  {id:'griff',name:'GRIFF',type:'For Time',cat:'Benchmark',desc:'800m Run vorwärts\n400m Run rückwärts\n800m Run vorwärts\n400m Run rückwärts',unit:'Zeit (mm:ss)'},
+  {id:'kalsu',name:'KALSU',type:'For Time',cat:'Benchmark',desc:'100 Thrusters (61/43 kg)\nJede Minute beginnen mit 5 Burpees\n(Start: 5 Burpees, dann Thrusters bis zur Minute, wiederholen)',unit:'Zeit (mm:ss)'},
+  {id:'mini_murph',name:'MINI MURPH',type:'For Time',cat:'Benchmark',desc:'800m Run\n50 Pull-ups\n100 Push-ups\n150 Air Squats\n800m Run',unit:'Zeit (mm:ss)'},
   // STRENGTH
   {id:'bs',name:'1RM BACK SQUAT',type:'Max Load',cat:'Strength',desc:'Back Squat 1 Rep Max',unit:'kg'},
   {id:'bp',name:'1RM BENCH PRESS',type:'Max Load',cat:'Strength',desc:'Bench Press 1 Rep Max',unit:'kg'},
@@ -259,6 +278,9 @@ const WODs=[
   {id:'dl',name:'1RM DEADLIFT',type:'Max Load',cat:'Strength',desc:'Deadlift 1 Rep Max',unit:'kg'},
   {id:'fs',name:'1RM FRONT SQUAT',type:'Max Load',cat:'Strength',desc:'Front Squat 1 Rep Max',unit:'kg'},
   {id:'ohs',name:'1RM OVERHEAD SQUAT',type:'Max Load',cat:'Strength',desc:'Overhead Squat 1 Rep Max',unit:'kg'},
+  {id:'pp',name:'1RM PUSH PRESS',type:'Max Load',cat:'Strength',desc:'Push Press 1 Rep Max',unit:'kg'},
+  {id:'pj',name:'1RM PUSH JERK',type:'Max Load',cat:'Strength',desc:'Push Jerk 1 Rep Max',unit:'kg'},
+  {id:'sj',name:'1RM SPLIT JERK',type:'Max Load',cat:'Strength',desc:'Split Jerk 1 Rep Max',unit:'kg'},
   {id:'sp',name:'1RM SHOULDER PRESS',type:'Max Load',cat:'Strength',desc:'Strict Shoulder Press 1 Rep Max',unit:'kg'},
   {id:'sn',name:'1RM SNATCH',type:'Max Load',cat:'Strength',desc:'Snatch 1 Rep Max',unit:'kg'},
   {id:'th',name:'1RM THRUSTER',type:'Max Load',cat:'Strength',desc:'Thruster 1 Rep Max',unit:'kg'},
