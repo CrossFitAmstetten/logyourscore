@@ -4,6 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Log Your Score — CrossFit Amstetten</title>
+
+<!-- Content Security Policy -->
+<meta http-equiv="Content-Security-Policy"
+  content="default-src 'self';
+           script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+           style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+           font-src https://fonts.gstatic.com;
+           connect-src https://xsbncfytrrgpltymgmpu.supabase.co wss://xsbncfytrrgpltymgmpu.supabase.co;
+           img-src 'self' data:;">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
 :root{--bg:#0f0f0f;--s:#1a1a1a;--b:rgba(255,255,255,.08);--b2:rgba(255,255,255,.15);--a:#e8c840;--a2:#c9a820;--t:#f0ede8;--m:#888880;--d:#e85540;--ok:#4caf7d;--r:10px;--fd:'Bebas Neue',sans-serif;--fb:'DM Sans',sans-serif;}
@@ -11,14 +26,15 @@
 body{background:var(--bg);color:var(--t);font-family:var(--fb);font-size:15px;line-height:1.6;min-height:100vh;}
 .sc{display:none;flex-direction:column;min-height:100vh;}.sc.on{display:flex;}
 nav{background:var(--s);border-bottom:1px solid var(--b);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:100;}
-.logo{font-family:var(--fd);font-size:26px;letter-spacing:2px;color:var(--a);}
+.logo{font-family:var(--fd);font-size:24px;letter-spacing:2px;color:var(--a);}
 .nu{display:flex;align-items:center;gap:10px;}
 .av{width:34px;height:34px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;color:#000;flex-shrink:0;}
-.nn{font-size:13px;color:var(--m);}
+.nn{font-size:13px;color:var(--m);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.admin-badge{background:var(--d);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.5px;flex-shrink:0;}
 .blo{background:none;border:1px solid var(--b2);color:var(--m);padding:5px 11px;border-radius:6px;cursor:pointer;font-size:12px;font-family:var(--fb);}
 .blo:hover{border-color:var(--a);color:var(--a);}
 .aw{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;}
-.ac{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:2.25rem 2rem;width:100%;max-width:410px;}
+.ac{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:2.25rem 2rem;width:100%;max-width:420px;}
 .at{font-family:var(--fd);font-size:40px;letter-spacing:3px;color:var(--a);margin-bottom:.2rem;}
 .as{color:var(--m);font-size:13px;margin-bottom:1.5rem;}
 .tr{display:flex;gap:4px;margin-bottom:1.5rem;background:var(--bg);border-radius:8px;padding:4px;}
@@ -29,9 +45,10 @@ input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--b2)
 input:focus,select:focus,textarea:focus{border-color:var(--a);}
 select option{background:#1a1a1a;}
 textarea{resize:vertical;min-height:70px;}
-.bp{width:100%;margin-top:1.25rem;background:var(--a);color:#000;border:none;padding:12px;border-radius:8px;font-family:var(--fb);font-size:15px;font-weight:600;cursor:pointer;}
+.bp{width:100%;margin-top:1.25rem;background:var(--a);color:#000;border:none;padding:12px;border-radius:8px;font-family:var(--fb);font-size:15px;font-weight:600;cursor:pointer;transition:opacity .2s;}
 .bp:hover{background:var(--a2);}
-.msg{margin-top:.75rem;font-size:12px;text-align:center;padding:7px;border-radius:6px;}
+.bp:disabled{opacity:.5;cursor:not-allowed;}
+.msg{margin-top:.75rem;font-size:12px;text-align:center;padding:8px 12px;border-radius:6px;line-height:1.5;}
 .msg.err{background:rgba(232,85,64,.15);color:var(--d);}
 .msg.ok{background:rgba(76,175,125,.15);color:var(--ok);}
 .r2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
@@ -77,9 +94,10 @@ textarea{resize:vertical;min-height:70px;}
 .bc{background:none;border:none;color:var(--m);cursor:pointer;font-size:20px;line-height:1;padding:2px;}
 .bs{background:none;border:1px solid var(--b2);color:var(--m);padding:5px 10px;border-radius:5px;font-family:var(--fb);font-size:12px;cursor:pointer;}
 .bs.bsd{border-color:rgba(232,85,64,.4);color:var(--d);}
+.bs.bsd:hover{border-color:var(--d);background:rgba(232,85,64,.08);}
 .ph{display:flex;align-items:center;gap:1.1rem;margin-bottom:1.5rem;}
 .pa{width:60px;height:60px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;color:#000;flex-shrink:0;}
-.pn{font-family:var(--fd);font-size:32px;letter-spacing:2px;}
+.pn{font-family:var(--fd);font-size:30px;letter-spacing:2px;}
 .ps{font-size:12px;color:var(--m);}
 .sg{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:1.5rem;}
 .sk{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:.9rem;text-align:center;}
@@ -87,57 +105,119 @@ textarea{resize:vertical;min-height:70px;}
 .sl2{font-size:11px;color:var(--m);text-transform:uppercase;letter-spacing:.5px;}
 .em{text-align:center;padding:2.5rem 1rem;color:var(--m);font-size:13px;}
 .fc{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:1.35rem;margin-bottom:1.25rem;}
-@media(max-width:640px){.mc{padding:1rem 1rem 1rem;}.dn{position:fixed;bottom:0;left:0;right:0;border-radius:0;border-top:1px solid var(--b);padding:6px 8px 10px;z-index:100;}.mc{padding-bottom:80px;}.dt{font-size:11px;}.nn{display:none;}}
+/* strength meter */
+.pw-meter{height:4px;border-radius:2px;margin-top:6px;background:var(--b2);overflow:hidden;}
+.pw-bar{height:100%;border-radius:2px;transition:width .3s,background .3s;}
+.pw-hint{font-size:11px;color:var(--m);margin-top:4px;}
+/* admin */
+.admin-table{width:100%;border-collapse:collapse;font-size:13px;}
+.admin-table th{text-align:left;padding:8px 12px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--m);border-bottom:1px solid var(--b);}
+.admin-table td{padding:10px 12px;border-bottom:1px solid var(--b);vertical-align:middle;}
+.admin-table tr:hover td{background:rgba(255,255,255,.02);}
+.tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;}
+.tag-admin{background:rgba(232,85,64,.15);color:var(--d);}
+.tag-user{background:rgba(255,255,255,.06);color:var(--m);}
+/* spinner */
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--b2);border-top-color:var(--a);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-full{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;color:var(--m);}
+.loading-full .spin{width:32px;height:32px;border-width:3px;}
+/* session warning */
+.session-warn{background:rgba(232,200,64,.1);border:1px solid rgba(232,200,64,.3);color:var(--a);font-size:12px;padding:8px 14px;border-radius:7px;margin-bottom:1rem;display:none;}
+@media(max-width:640px){
+  .mc{padding:1rem 1rem 80px;}
+  .dn{position:fixed;bottom:0;left:0;right:0;border-radius:0;border-top:1px solid var(--b);padding:6px 4px 10px;z-index:100;}
+  .dt{font-size:11px;padding:8px 2px;}
+  .nn,.admin-badge{display:none;}
+  .r2{grid-template-columns:1fr;}
+  .admin-table{font-size:11px;}
+  .admin-table th:nth-child(3),.admin-table td:nth-child(3){display:none;}
+}
 </style>
 </head>
 <body>
 
+<!-- LOADING -->
+<div class="sc on" id="s-loading">
+  <div class="loading-full">
+    <div class="spin"></div>
+    <span>Wird geladen…</span>
+  </div>
+</div>
+
 <!-- AUTH -->
-<div class="sc on" id="sa">
+<div class="sc" id="s-auth">
   <div class="aw">
     <div class="ac">
       <div class="at">LOG YOUR SCORE</div>
-      <div class="as">CrossFit Amstetten — WOD Score Tracker</div>
+      <div class="as">CrossFit Amstetten — WOD Tracker</div>
       <div class="tr">
         <button class="tb on" onclick="sat('login')">Anmelden</button>
         <button class="tb" onclick="sat('reg')">Registrieren</button>
       </div>
+
+      <!-- LOGIN -->
       <div id="alog">
-        <label>E-Mail</label><input type="email" id="le" placeholder="deine@email.com" autocomplete="email"/>
-        <label>Passwort</label><input type="password" id="lp" placeholder="••••••••" autocomplete="current-password"/>
-        <button class="bp" onclick="dol()">Einloggen</button>
+        <label>E-Mail</label>
+        <input type="email" id="le" placeholder="deine@email.com" autocomplete="email" maxlength="254"/>
+        <label>Passwort</label>
+        <input type="password" id="lp" placeholder="••••••••" autocomplete="current-password" maxlength="128"/>
+        <button class="bp" id="btn-login" onclick="doLogin()">Einloggen</button>
+        <p style="font-size:12px;color:var(--m);margin-top:.75rem;text-align:center;cursor:pointer;" onclick="sat('reset')">Passwort vergessen?</p>
       </div>
+
+      <!-- REGISTER -->
       <div id="areg" style="display:none">
         <div class="r2">
-          <div><label>Vorname</label><input type="text" id="rf" placeholder="Max"/></div>
-          <div><label>Nachname</label><input type="text" id="rl" placeholder="Mustermann"/></div>
+          <div><label>Vorname</label><input type="text" id="rf" placeholder="Max" maxlength="50" autocomplete="given-name"/></div>
+          <div><label>Nachname</label><input type="text" id="rl" placeholder="Mustermann" maxlength="50" autocomplete="family-name"/></div>
         </div>
-        <label>E-Mail</label><input type="email" id="re" placeholder="deine@email.com"/>
-        <label>Passwort</label><input type="password" id="rp" placeholder="Mind. 6 Zeichen"/>
-        <label>Box / Gym (optional)</label><input type="text" id="rb" placeholder="CrossFit Amstetten"/>
-        <button class="bp" onclick="dor()">Konto erstellen</button>
+        <label>E-Mail</label>
+        <input type="email" id="re" placeholder="deine@email.com" maxlength="254" autocomplete="email"/>
+        <label>Passwort</label>
+        <input type="password" id="rp" placeholder="Mind. 8 Zeichen" maxlength="128" autocomplete="new-password" oninput="pwStrength(this.value)"/>
+        <div class="pw-meter"><div class="pw-bar" id="pw-bar" style="width:0%"></div></div>
+        <div class="pw-hint" id="pw-hint">Mindestens 8 Zeichen, Groß-/Kleinbuchstaben und eine Zahl</div>
+        <label>Box / Gym (optional)</label>
+        <input type="text" id="rb" placeholder="CrossFit Amstetten" maxlength="100" autocomplete="organization"/>
+        <button class="bp" id="btn-reg" onclick="doReg()">Konto erstellen</button>
       </div>
+
+      <!-- PASSWORD RESET -->
+      <div id="areset" style="display:none">
+        <p style="color:var(--m);font-size:13px;margin-bottom:1rem;">Gib deine E-Mail ein — wir senden dir einen Reset-Link.</p>
+        <label>E-Mail</label>
+        <input type="email" id="reset-email" placeholder="deine@email.com" maxlength="254"/>
+        <button class="bp" id="btn-reset" onclick="doReset()">Reset-Link senden</button>
+        <p style="font-size:12px;color:var(--m);margin-top:.75rem;text-align:center;cursor:pointer;" onclick="sat('login')">← Zurück zum Login</p>
+      </div>
+
       <div id="am"></div>
     </div>
   </div>
 </div>
 
 <!-- APP -->
-<div class="sc" id="sapp">
+<div class="sc" id="s-app">
   <nav>
     <div class="logo">LOG YOUR SCORE</div>
     <div class="nu">
-      <div class="av" id="navav"></div>
-      <span class="nn" id="navnm">–</span>
-      <button class="blo" onclick="dout()">Logout</button>
+      <div class="av" id="nav-av">?</div>
+      <span class="nn" id="nav-nm"></span>
+      <span class="admin-badge" id="nav-admin" style="display:none">ADMIN</span>
+      <button class="blo" onclick="doLogout()">Logout</button>
     </div>
   </nav>
   <div class="mc">
-    <div class="dn">
+    <div class="session-warn" id="session-warn">
+      ⚠️ Deine Sitzung läuft bald ab. <span style="cursor:pointer;text-decoration:underline;" onclick="refreshSession()">Verlängern</span>
+    </div>
+    <div class="dn" id="main-nav">
       <button class="dt on" data-v="bm" onclick="sv('bm')">📊 Benchmarks</button>
       <button class="dt" data-v="cw" onclick="sv('cw')">⏱ Eigene</button>
       <button class="dt" data-v="add" onclick="sv('add')">➕ Anlegen</button>
       <button class="dt" data-v="pr" onclick="sv('pr')">👤 Profil</button>
+      <button class="dt" data-v="adm" id="nav-adm" style="display:none" onclick="sv('adm')">🔧 Admin</button>
     </div>
 
     <!-- BENCHMARKS -->
@@ -145,14 +225,14 @@ textarea{resize:vertical;min-height:70px;}
       <div class="st">Benchmark WODs</div>
       <div class="sw">
         <svg class="si" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" id="bsq" placeholder="WOD suchen…" oninput="rb()"/>
+        <input type="text" id="bsq" placeholder="WOD suchen…" oninput="rb()" maxlength="100"/>
       </div>
       <div class="fr" id="bfr"></div>
       <div id="yfw" style="display:none"><div class="yf" id="yf"></div></div>
       <div class="wl" id="bl"></div>
     </div>
 
-    <!-- EIGENE -->
+    <!-- EIGENE WODs -->
     <div class="vi" id="vcw">
       <div class="st">Eigene Workouts</div>
       <div class="wl" id="cl"></div>
@@ -162,14 +242,21 @@ textarea{resize:vertical;min-height:70px;}
     <div class="vi" id="vadd">
       <div class="st">Workout anlegen</div>
       <div class="fc">
-        <label>Name</label><input type="text" id="wna" placeholder="z.B. Friday Fran…"/>
+        <label>Name <span style="color:var(--m);font-weight:400;">(max. 100 Zeichen)</span></label>
+        <input type="text" id="wna" placeholder="z.B. Friday Fran…" maxlength="100"/>
         <label>Typ</label>
-        <select id="wty"><option>For Time</option><option>AMRAP</option><option>EMOM</option><option>Max Load</option><option>Max Reps</option><option>Sonstige</option></select>
-        <label>Beschreibung</label>
-        <textarea id="wde" placeholder="21-15-9&#10;Thrusters&#10;Pull-ups"></textarea>
+        <select id="wty">
+          <option>For Time</option><option>AMRAP</option><option>EMOM</option>
+          <option>Max Load</option><option>Max Reps</option><option>Sonstige</option>
+        </select>
+        <label>Beschreibung <span style="color:var(--m);font-weight:400;">(max. 1000 Zeichen)</span></label>
+        <textarea id="wde" placeholder="21-15-9&#10;Thrusters&#10;Pull-ups" maxlength="1000"></textarea>
         <label>Score-Einheit</label>
-        <select id="wun"><option>Zeit (mm:ss)</option><option>Runden + Reps</option><option>kg</option><option>Wiederholungen</option><option>Punkte</option></select>
-        <button class="bp" onclick="scw()">Workout speichern</button>
+        <select id="wun">
+          <option>Zeit (mm:ss)</option><option>Runden + Reps</option>
+          <option>kg</option><option>Wiederholungen</option><option>Punkte</option>
+        </select>
+        <button class="bp" id="btn-savewod" onclick="saveCW()">Workout speichern</button>
         <div id="addm"></div>
       </div>
     </div>
@@ -177,15 +264,23 @@ textarea{resize:vertical;min-height:70px;}
     <!-- PROFIL -->
     <div class="vi" id="vpr">
       <div class="ph">
-        <div class="pa" id="pav"></div>
+        <div class="pa" id="p-av">?</div>
         <div>
-          <div class="pn" id="pnm">–</div>
-          <div class="ps" id="psi"></div>
+          <div class="pn" id="p-nm"></div>
+          <div class="ps" id="p-si"></div>
         </div>
       </div>
-      <div class="sg" id="pst"></div>
+      <div class="sg" id="p-st"></div>
       <div class="st" style="font-size:22px;margin-bottom:.75rem;">Letzte Scores</div>
-      <div id="prec"></div>
+      <div id="p-rec"></div>
+    </div>
+
+    <!-- ADMIN -->
+    <div class="vi" id="vadm">
+      <div class="st">Admin — Mitglieder</div>
+      <div id="adm-content">
+        <div class="em"><span class="spin"></span>Lade…</div>
+      </div>
     </div>
   </div>
 
@@ -193,17 +288,26 @@ textarea{resize:vertical;min-height:70px;}
   <div class="overlay" id="sov" onclick="csm(event)">
     <div class="mo">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
-        <div><div class="mt" id="mwn">–</div><div class="ms" id="mwd">–</div></div>
-        <button class="bc" onclick="csm(null,true)">✕</button>
+        <div>
+          <div class="mt" id="m-wn"></div>
+          <div class="ms" id="m-wd"></div>
+        </div>
+        <button class="bc" onclick="csm(null,true)" aria-label="Schließen">✕</button>
       </div>
       <div class="ms2">Neuen Score eintragen</div>
       <div class="r2">
-        <div><label id="scl">Score</label><input type="text" id="svi"/></div>
-        <div><label>Datum</label><input type="date" id="sdi"/></div>
+        <div>
+          <label id="scl">Score</label>
+          <input type="text" id="svi" maxlength="50" autocomplete="off"/>
+        </div>
+        <div>
+          <label>Datum</label>
+          <input type="date" id="sdi"/>
+        </div>
       </div>
-      <label>Notizen (optional)</label>
-      <input type="text" id="sni" placeholder="z.B. RX, scaled, PR…"/>
-      <button class="bp" onclick="ss()">Score speichern</button>
+      <label>Notizen <span style="color:var(--m);font-weight:400;">(optional, max. 200 Z.)</span></label>
+      <input type="text" id="sni" placeholder="z.B. RX, scaled, PR…" maxlength="200"/>
+      <button class="bp" id="btn-score" onclick="saveScore()">Score speichern</button>
       <div id="smsg"></div>
       <div class="ms2">Meine Scores</div>
       <div class="sl" id="msl"></div>
@@ -212,21 +316,172 @@ textarea{resize:vertical;min-height:70px;}
 </div>
 
 <script>
-const SK='boxdb_v2';
-let DB={users:{},scores:{}},CU=null,CW=null,AC='Alle',AY='Alle';
+'use strict';
 
-const WODs=[
+// ── CONFIG ────────────────────────────────────────────────────────
+const SUPA_URL = 'https://xsbncfytrrgpltymgmpu.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzYm5jZnl0cnJncGx0eW1nbXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyOTg4MzksImV4cCI6MjA5NDg3NDgzOX0.tranbDswHl0Kp9j1EhH5Oyxvc4UVSc7KvtuZ-zSnSek';
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    storageKey: 'lys-auth'
+  }
+});
+
+// ── STATE ─────────────────────────────────────────────────────────
+let CU = null, CP = null, CW = null;
+let AC = 'Alle', AY = 'Alle';
+let cachedScores = {};
+let loginAttempts = 0;
+let loginLockUntil = 0;
+let scoreSubmitTime = 0;
+let sessionTimer = null;
+
+// ── SECURITY HELPERS ──────────────────────────────────────────────
+
+// XSS-safe HTML escaping
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#x27;');
+}
+
+// Input sanitization — entfernt gefährliche Zeichen
+function sanitize(str, maxLen = 200) {
+  if (!str) return '';
+  return String(str).trim().slice(0, maxLen);
+}
+
+// E-Mail Validierung
+function validEmail(e) {
+  return /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/.test(e) && e.length <= 254;
+}
+
+// Passwort-Stärke prüfen
+function validPassword(p) {
+  return p.length >= 8 && /[A-Z]/.test(p) && /[a-z]/.test(p) && /[0-9]/.test(p);
+}
+
+// Passwort-Stärke-Anzeige
+function pwStrength(p) {
+  const bar = document.getElementById('pw-bar');
+  const hint = document.getElementById('pw-hint');
+  if (!bar) return;
+  let score = 0;
+  if (p.length >= 8) score++;
+  if (p.length >= 12) score++;
+  if (/[A-Z]/.test(p) && /[a-z]/.test(p)) score++;
+  if (/[0-9]/.test(p)) score++;
+  if (/[^A-Za-z0-9]/.test(p)) score++;
+  const colors = ['#e85540','#e85540','#e8a040','#c9a820','#4caf7d'];
+  const labels = ['Sehr schwach','Schwach','Mittel','Gut','Stark'];
+  bar.style.width = (score * 20) + '%';
+  bar.style.background = colors[score] || colors[0];
+  hint.textContent = score < 3
+    ? 'Tipp: Groß-/Kleinbuchstaben, Zahlen und Sonderzeichen verwenden'
+    : 'Passwortstärke: ' + (labels[score] || '');
+}
+
+// Score-Datum Validierung (nicht in der Zukunft, nicht vor 2000)
+function validDate(d) {
+  if (!d) return false;
+  const dt = new Date(d);
+  const now = new Date();
+  const min = new Date('2000-01-01');
+  return dt >= min && dt <= new Date(now.getTime() + 86400000);
+}
+
+// Score-Wert Validierung
+function validScoreValue(v) {
+  if (!v || v.length === 0 || v.length > 50) return false;
+  // Erlaubt: Zahlen, Doppelpunkt, Plus, Leerzeichen, Komma, Punkt — kein HTML/Script
+  return /^[\d:+\s,.\-\/A-Za-z]+$/.test(v);
+}
+
+// Client-seitiges Rate Limiting für Login
+function checkLoginRateLimit() {
+  const now = Date.now();
+  if (loginLockUntil > now) {
+    const sec = Math.ceil((loginLockUntil - now) / 1000);
+    smsg('am', `Zu viele Versuche. Bitte ${sec} Sekunden warten.`, 'err');
+    return false;
+  }
+  loginAttempts++;
+  if (loginAttempts >= 5) {
+    loginLockUntil = now + 30000; // 30s Sperre
+    loginAttempts = 0;
+  }
+  return true;
+}
+
+// Client-seitiges Rate Limiting für Score-Eingabe
+function checkScoreRateLimit() {
+  const now = Date.now();
+  if (now - scoreSubmitTime < 2000) {
+    smsg('smsg', 'Bitte kurz warten…', 'err');
+    return false;
+  }
+  scoreSubmitTime = now;
+  return true;
+}
+
+// Session-Timer: warnt 5 min vor Ablauf
+function startSessionTimer(expiresAt) {
+  if (sessionTimer) clearTimeout(sessionTimer);
+  const msLeft = (expiresAt * 1000) - Date.now() - 300000; // 5 min vorher
+  if (msLeft > 0) {
+    sessionTimer = setTimeout(() => {
+      document.getElementById('session-warn').style.display = 'block';
+    }, msLeft);
+  }
+}
+
+async function refreshSession() {
+  const { data } = await sb.auth.refreshSession();
+  if (data?.session) {
+    document.getElementById('session-warn').style.display = 'none';
+    startSessionTimer(data.session.expires_at);
+  }
+}
+
+// Inaktivitäts-Logout nach 60 Minuten
+let inactivityTimer;
+function resetInactivity() {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(() => {
+    if (CU) {
+      doLogout();
+      alert('Du wurdest wegen Inaktivität ausgeloggt.');
+    }
+  }, 60 * 60 * 1000);
+}
+['click','keydown','touchstart','mousemove'].forEach(e =>
+  document.addEventListener(e, resetInactivity, { passive: true })
+);
+
+// ── WOD DATA ─────────────────────────────────────────────────────
+const WODs = [
   // GIRLS
   {id:'annie',name:'ANNIE',type:'For Time',cat:'Girls',desc:'50-40-30-20-10 Reps:\nDouble-Unders\nSit-ups',unit:'Zeit (mm:ss)'},
   {id:'angie',name:'ANGIE',type:'For Time',cat:'Girls',desc:'100 Pull-ups\n100 Push-ups\n100 Sit-ups\n100 Air Squats',unit:'Zeit (mm:ss)'},
+  {id:'amanda',name:'AMANDA',type:'For Time',cat:'Girls',desc:'9-7-5 Reps:\nMuscle-ups\nSquat Snatches (61/43 kg)',unit:'Zeit (mm:ss)'},
   {id:'barbara',name:'BARBARA',type:'For Time',cat:'Girls',desc:'5 Rounds (3 min Pause):\n20 Pull-ups\n30 Push-ups\n40 Sit-ups\n50 Air Squats',unit:'Zeit (mm:ss)'},
   {id:'chelsea',name:'CHELSEA',type:'EMOM',cat:'Girls',desc:'30 min EMOM:\n5 Pull-ups\n10 Push-ups\n15 Air Squats',unit:'Runden + Reps'},
   {id:'cindy',name:'CINDY',type:'AMRAP',cat:'Girls',desc:'20 min AMRAP:\n5 Pull-ups\n10 Push-ups\n15 Air Squats',unit:'Runden + Reps'},
   {id:'diane',name:'DIANE',type:'For Time',cat:'Girls',desc:'21-15-9 Reps:\nDeadlift (102/70 kg)\nHandstand Push-ups',unit:'Zeit (mm:ss)'},
   {id:'elizabeth',name:'ELIZABETH',type:'For Time',cat:'Girls',desc:'21-15-9 Reps:\nClean (60/43 kg)\nRing Dips',unit:'Zeit (mm:ss)'},
+  {id:'eva',name:'EVA',type:'For Time',cat:'Girls',desc:'5 Rounds:\n800m Run\n30 KB Swings (32/24 kg)\n30 Pull-ups',unit:'Zeit (mm:ss)'},
   {id:'fran',name:'FRAN',type:'For Time',cat:'Girls',desc:'21-15-9 Reps:\nThrusters (42.5/30 kg)\nPull-ups',unit:'Zeit (mm:ss)'},
   {id:'grace',name:'GRACE',type:'For Time',cat:'Girls',desc:'30 Clean & Jerks (60/43 kg)',unit:'Zeit (mm:ss)'},
+  {id:'gwen',name:'GWEN',type:'Max Load',cat:'Girls',desc:'15-12-9 Reps:\nClean & Jerk (Touch-and-go)\nGleiches Gewicht für alle Sätze',unit:'kg'},
   {id:'helen',name:'HELEN',type:'For Time',cat:'Girls',desc:'3 Rounds:\n400m Run\n21 KB Swings (24/16 kg)\n12 Pull-ups',unit:'Zeit (mm:ss)'},
+  {id:'hope',name:'HOPE',type:'AMRAP',cat:'Girls',desc:'3 Rounds, 1 min each:\nBurpees · Power Snatches (35/25 kg)\nBox Jumps (60/50 cm) · Thrusters (35/25 kg)\nC2B Pull-ups — 1 min Rest',unit:'Punkte'},
   {id:'isabel',name:'ISABEL',type:'For Time',cat:'Girls',desc:'30 Snatches (60/43 kg)',unit:'Zeit (mm:ss)'},
   {id:'jackie',name:'JACKIE',type:'For Time',cat:'Girls',desc:'1000m Row\n50 Thrusters (20 kg)\n30 Pull-ups',unit:'Zeit (mm:ss)'},
   {id:'karen',name:'KAREN',type:'For Time',cat:'Girls',desc:'150 Wall Ball Shots (9/6 kg)',unit:'Zeit (mm:ss)'},
@@ -234,19 +489,13 @@ const WODs=[
   {id:'linda',name:'LINDA',type:'For Time',cat:'Girls',desc:'10-9-8-7-6-5-4-3-2-1 Reps:\nDeadlift (1.5x BW)\nBench Press (BW)\nClean (0.75x BW)',unit:'Zeit (mm:ss)'},
   {id:'mary',name:'MARY',type:'AMRAP',cat:'Girls',desc:'20 min AMRAP:\n5 HSPU\n10 Pistols\n15 Pull-ups',unit:'Runden + Reps'},
   {id:'nancy',name:'NANCY',type:'For Time',cat:'Girls',desc:'5 Rounds:\n400m Run\n15 OHS (43/29 kg)',unit:'Zeit (mm:ss)'},
-  // GIRLS — neu
-  {id:'amanda',name:'AMANDA',type:'For Time',cat:'Girls',desc:'9-7-5 Reps:\nMuscle-ups\nSquat Snatches (61/43 kg)',unit:'Zeit (mm:ss)'},
-  {id:'eva',name:'EVA',type:'For Time',cat:'Girls',desc:'5 Rounds:\n800m Run\n30 KB Swings (32/24 kg)\n30 Pull-ups',unit:'Zeit (mm:ss)'},
-  {id:'gwen',name:'GWEN',type:'Max Load',cat:'Girls',desc:'15-12-9 Reps:\nClean & Jerk\nTouch-and-go vom Boden\nKein Ablegen — gleiches Gewicht für alle Sätze\nRest nach Bedarf',unit:'kg'},
-  {id:'hope',name:'HOPE',type:'AMRAP',cat:'Girls',desc:'3 Rounds, 1 min each:\nBurpees\nPower Snatches (35/25 kg)\nBox Jumps (60/50 cm)\nThrusters (35/25 kg)\nC2B Pull-ups\n1 min Rest',unit:'Punkte'},
   {id:'nasty_girls',name:'NASTY GIRLS',type:'For Time',cat:'Girls',desc:'3 Rounds:\n50 Air Squats\n7 Muscle-ups\n10 Hang Power Cleans (61/43 kg)',unit:'Zeit (mm:ss)'},
-  {id:'nicole',name:'NICOLE',type:'AMRAP',cat:'Girls',desc:'20 min AMRAP:\n400m Run\nMax Pull-ups\n(Runde endet wenn du von der Stange kommst)',unit:'Runden + Reps'},
+  {id:'nicole',name:'NICOLE',type:'AMRAP',cat:'Girls',desc:'20 min AMRAP:\n400m Run\nMax Pull-ups',unit:'Runden + Reps'},
   {id:'patricia',name:'PATRICIA',type:'For Time',cat:'Girls',desc:'5 Rounds:\n400m Run\n10 Rope Climbs (4.5 m)',unit:'Zeit (mm:ss)'},
-  {id:'randy',name:'RANDY',type:'For Time',cat:'Hero',desc:'75 Power Snatches (35/25 kg)',unit:'Zeit (mm:ss)'},
   // HEROES
   {id:'chad',name:'CHAD',type:'For Time',cat:'Hero',desc:'1.000 Step-ups (60/50 cm)\nmit 20 kg Ruck/Weste',unit:'Zeit (mm:ss)'},
   {id:'daniel',name:'DANIEL',type:'AMRAP',cat:'Hero',desc:'20 min AMRAP:\n24 Box Jumps (60 cm)\n24 Push Presses (52/35 kg)\n24 Pull-ups',unit:'Runden + Reps'},
-  {id:'desforges',name:'DESFORGES',type:'For Time',cat:'Hero',desc:'5 Rounds:\n225 lb Deadlifts (102/70 kg), 12 Reps\n20 Pull-ups\nClean & Jerks (61/43 kg), 12 Reps\n20 K2E',unit:'Zeit (mm:ss)'},
+  {id:'desforges',name:'DESFORGES',type:'For Time',cat:'Hero',desc:'5 Rounds:\n12 Deadlifts (102/70 kg)\n20 Pull-ups\n12 Clean & Jerks (61/43 kg)\n20 K2E',unit:'Zeit (mm:ss)'},
   {id:'dt',name:'DT',type:'For Time',cat:'Hero',desc:'5 Rounds:\n12 Deadlifts (70/47 kg)\n9 Hang Power Cleans\n6 Push Jerks',unit:'Zeit (mm:ss)'},
   {id:'glen',name:'GLEN',type:'For Time',cat:'Hero',desc:'30 Clean & Jerks (60/43 kg)\n1 Mile Run\n10 Rope Climbs (4.5 m)\n1 Mile Run\n100 Burpees',unit:'Zeit (mm:ss)'},
   {id:'jack',name:'JACK',type:'AMRAP',cat:'Hero',desc:'20 min AMRAP:\n10 Push Presses (52/35 kg)\n10 KB Swings (32/24 kg)\n10 Box Jumps (60/50 cm)',unit:'Runden + Reps'},
@@ -257,23 +506,23 @@ const WODs=[
   {id:'nate',name:'NATE',type:'AMRAP',cat:'Hero',desc:'20 min AMRAP:\n2 Muscle-ups\n4 HSPU\n8 KB Swings (32/24 kg)',unit:'Runden + Reps'},
   {id:'nutts',name:'NUTTS',type:'For Time',cat:'Hero',desc:'10 Muscle-ups · 100m Sprint\n50 Ring Dips · 100m Sprint\n20 Push-ups · 100m Sprint\n50 Air Squats · 100m Sprint',unit:'Zeit (mm:ss)'},
   {id:'rahoi',name:'RAHOI',type:'AMRAP',cat:'Hero',desc:'12 min AMRAP:\n12 Box Jumps (60 cm)\n6 Thrusters (43/29 kg)\n6 Bar-facing Burpees',unit:'Runden + Reps'},
+  {id:'randy',name:'RANDY',type:'For Time',cat:'Hero',desc:'75 Power Snatches (35/25 kg)',unit:'Zeit (mm:ss)'},
   {id:'ryan',name:'RYAN',type:'For Time',cat:'Hero',desc:'5 Rounds:\n7 Muscle-ups\n21 Burpees',unit:'Zeit (mm:ss)'},
-  {id:'the_seven',name:'THE SEVEN',type:'For Time',cat:'Hero',desc:'7 Rounds:\n7 HSPU\n7 Thrusters (61/43 kg)\n7 Knees-to-Elbows\n7 Deadlifts (102/70 kg)\n7 Burpees\n7 KB Swings (32/24 kg)\n7 Pull-ups',unit:'Zeit (mm:ss)'},
+  {id:'the_seven',name:'THE SEVEN',type:'For Time',cat:'Hero',desc:'7 Rounds:\n7 HSPU · 7 Thrusters (61/43 kg)\n7 K2E · 7 Deadlifts (102/70 kg)\n7 Burpees · 7 KB Swings (32/24 kg) · 7 Pull-ups',unit:'Zeit (mm:ss)'},
   {id:'tommy_v',name:'TOMMY V',type:'For Time',cat:'Hero',desc:'21-15-9 Reps:\nThruster (61/43 kg)\nRope Climbs (4.5 m)',unit:'Zeit (mm:ss)'},
   // BENCHMARKS
   {id:'badger',name:'BADGER',type:'For Time',cat:'Benchmark',desc:'3 Rounds:\n30 Squat Cleans (43/29 kg)\n30 Pull-ups\n800m Run',unit:'Zeit (mm:ss)'},
-  {id:'cf_total',name:'CF TOTAL',type:'Max Load',cat:'Benchmark',desc:'1RM Back Squat + Shoulder Press + Deadlift\n(Summe aller drei)',unit:'kg'},
-  {id:'dbp',name:'DEATH BY PULL-UPS',type:'EMOM',cat:'Benchmark',desc:'Min 1: 1 Pull-up\nMin 2: 2 Pull-ups\n… bis zur Aufgabe',unit:'Runden + Reps'},
-  {id:'fgb',name:'FIGHT GONE BAD',type:'AMRAP',cat:'Benchmark',desc:'3 Rounds, 1 min each:\nWall Ball (9/6 kg) · SDHP (35/25 kg)\nBox Jump (50/40 cm) · Push Press (35/25 kg)\nRow (Cal) — 1 min Rest',unit:'Punkte'},
-  {id:'f50',name:'FILTHY FIFTY',type:'For Time',cat:'Benchmark',desc:'50 Box Jumps (60/50 cm)\n50 Jumping Pull-ups\n50 KB Swings (16/12 kg)\n50 Walking Lunges\n50 K2E · 50 Push Press (20 kg)\n50 Hip Extensions\n50 Wall Ball (9/6 kg)\n50 Burpees · 50 Double-Unders',unit:'Zeit (mm:ss)'},
-  {id:'g45',name:'GHOST',type:'AMRAP',cat:'Benchmark',desc:'6 Rounds, je 1 min:\n500m Row\n40 Box Jumps (60/50 cm)\n30 Burpees\n— kein Rest zwischen den Stationen',unit:'Runden + Reps'},
-  {id:'griff',name:'GRIFF',type:'For Time',cat:'Benchmark',desc:'800m Run vorwärts\n400m Run rückwärts\n800m Run vorwärts\n400m Run rückwärts',unit:'Zeit (mm:ss)'},
-  {id:'kalsu',name:'KALSU',type:'For Time',cat:'Benchmark',desc:'100 Thrusters (61/43 kg)\nJede Minute beginnen mit 5 Burpees\n(Start: 5 Burpees, dann Thrusters bis zur Minute, wiederholen)',unit:'Zeit (mm:ss)'},
-  {id:'mini_murph',name:'MINI MURPH',type:'For Time',cat:'Benchmark',desc:'800m Run\n50 Pull-ups\n100 Push-ups\n150 Air Squats\n800m Run',unit:'Zeit (mm:ss)'},
+  {id:'cf_total',name:'CF TOTAL',type:'Max Load',cat:'Benchmark',desc:'1RM Back Squat + Shoulder Press + Deadlift',unit:'kg'},
+  {id:'dbp',name:'DEATH BY PULL-UPS',type:'EMOM',cat:'Benchmark',desc:'Min 1: 1 Pull-up\nMin 2: 2 Pull-ups … bis zur Aufgabe',unit:'Runden + Reps'},
+  {id:'fgb',name:'FIGHT GONE BAD',type:'AMRAP',cat:'Benchmark',desc:'3 Rounds, 1 min each:\nWall Ball · SDHP · Box Jump · Push Press · Row\n1 min Rest',unit:'Punkte'},
+  {id:'f50',name:'FILTHY FIFTY',type:'For Time',cat:'Benchmark',desc:'50 Box Jumps · 50 Jumping Pull-ups\n50 KB Swings · 50 Walking Lunges\n50 K2E · 50 Push Press · 50 Hip Ext\n50 Wall Ball · 50 Burpees · 50 DU',unit:'Zeit (mm:ss)'},
+  {id:'griff',name:'GRIFF',type:'For Time',cat:'Benchmark',desc:'800m vorwärts · 400m rückwärts\n800m vorwärts · 400m rückwärts',unit:'Zeit (mm:ss)'},
+  {id:'kalsu',name:'KALSU',type:'For Time',cat:'Benchmark',desc:'100 Thrusters (61/43 kg)\nJede Minute starten mit 5 Burpees',unit:'Zeit (mm:ss)'},
+  {id:'mini_murph',name:'MINI MURPH',type:'For Time',cat:'Benchmark',desc:'800m Run\n50 Pull-ups · 100 Push-ups · 150 Air Squats\n800m Run',unit:'Zeit (mm:ss)'},
   // STRENGTH
   {id:'bs',name:'1RM BACK SQUAT',type:'Max Load',cat:'Strength',desc:'Back Squat 1 Rep Max',unit:'kg'},
   {id:'bp',name:'1RM BENCH PRESS',type:'Max Load',cat:'Strength',desc:'Bench Press 1 Rep Max',unit:'kg'},
-  {id:'cl',name:'1RM CLEAN',type:'Max Load',cat:'Strength',desc:'Power Clean oder Squat Clean\n1 Rep Max',unit:'kg'},
+  {id:'cl',name:'1RM CLEAN',type:'Max Load',cat:'Strength',desc:'Power Clean oder Squat Clean 1RM',unit:'kg'},
   {id:'cj',name:'1RM CLEAN & JERK',type:'Max Load',cat:'Strength',desc:'Clean & Jerk 1 Rep Max',unit:'kg'},
   {id:'dl',name:'1RM DEADLIFT',type:'Max Load',cat:'Strength',desc:'Deadlift 1 Rep Max',unit:'kg'},
   {id:'fs',name:'1RM FRONT SQUAT',type:'Max Load',cat:'Strength',desc:'Front Squat 1 Rep Max',unit:'kg'},
@@ -285,197 +534,409 @@ const WODs=[
   {id:'sn',name:'1RM SNATCH',type:'Max Load',cat:'Strength',desc:'Snatch 1 Rep Max',unit:'kg'},
   {id:'th',name:'1RM THRUSTER',type:'Max Load',cat:'Strength',desc:'Thruster 1 Rep Max',unit:'kg'},
   // OPEN 2024
-  {id:'o241',name:'24.1',type:'For Time',cat:'Open',year:'2024',desc:'For Time (Cap 15 min)\n21-15-9 Reps je Seite:\nDumbbell Snatches\nLateral Burpees over DB\n♀ 15 kg · ♂ 22.5 kg',unit:'Zeit (mm:ss)'},
-  {id:'o242',name:'24.2',type:'AMRAP',cat:'Open',year:'2024',desc:'20 min AMRAP:\n300m Row\n10 Deadlifts\n50 Double-Unders\n♀ 56 kg · ♂ 83 kg',unit:'Runden + Reps'},
-  {id:'o243',name:'24.3',type:'For Time',cat:'Open',year:'2024',desc:'For Time (Cap 15 min)\n5 Rds: 10 Thrusters + 10 C2B Pull-ups\nRest 1 min, dann:\n5 Rds: 7 Thrusters + 7 Bar Muscle-ups\n♀ 29/43 kg · ♂ 43/61 kg',unit:'Zeit (mm:ss)'},
+  {id:'o241',name:'24.1',type:'For Time',cat:'Open',year:'2024',desc:'For Time (Cap 15 min)\n21-15-9 je Seite: DB Snatches + Lateral Burpees over DB\n♀ 15 kg · ♂ 22.5 kg',unit:'Zeit (mm:ss)'},
+  {id:'o242',name:'24.2',type:'AMRAP',cat:'Open',year:'2024',desc:'20 min AMRAP:\n300m Row · 10 Deadlifts · 50 DU\n♀ 56 kg · ♂ 83 kg',unit:'Runden + Reps'},
+  {id:'o243',name:'24.3',type:'For Time',cat:'Open',year:'2024',desc:'For Time (Cap 15 min)\n5 Rds: 10 Thrusters + 10 C2B\nRest 1 min\n5 Rds: 7 Thrusters + 7 BMU\n♀ 29/43 kg · ♂ 43/61 kg',unit:'Zeit (mm:ss)'},
   // OPEN 2025
-  {id:'o251',name:'25.1',type:'AMRAP',cat:'Open',year:'2025',desc:'15 min AMRAP (Reps +3/Runde):\n3 Lateral Burpees over DB\n3 DB Hang Clean-to-OH\n30 ft (2x15) Walking Lunge\n♀ 15 kg · ♂ 22.5 kg',unit:'Runden + Reps'},
-  {id:'o252',name:'25.2',type:'For Time',cat:'Open',year:'2025',desc:'For Time:\n21 Pull-ups · 42 DU · 21 Thrusters (Gew.1)\n18 C2B · 36 DU · 18 Thrusters (Gew.2)\n15 BMU · 30 DU · 15 Thrusters (Gew.3)\n♀ 20/25/29 kg · ♂ 29/38/47 kg',unit:'Zeit (mm:ss)'},
-  {id:'o253',name:'25.3',type:'For Time',cat:'Open',year:'2025',desc:'For Time (Cap 20 min)\n5 Wall Walks · 50 Cal Row\n5 Wall Walks · 25 Deadlifts\n5 Wall Walks · 25 Cleans\n5 Wall Walks · 25 Snatches\n5 Wall Walks · 50 Cal Row\n♀ DL 70/Cl 38/Sn 29 kg · ♂ DL 102/Cl 61/Sn 43 kg',unit:'Zeit (mm:ss)'},
+  {id:'o251',name:'25.1',type:'AMRAP',cat:'Open',year:'2025',desc:'15 min AMRAP (Reps +3/Runde):\n3 Lateral Burpees over DB\n3 DB Hang C2OH\n30 ft Walking Lunge\n♀ 15 kg · ♂ 22.5 kg',unit:'Runden + Reps'},
+  {id:'o252',name:'25.2',type:'For Time',cat:'Open',year:'2025',desc:'For Time:\n21 Pull-ups · 42 DU · 21 Thrusters\n18 C2B · 36 DU · 18 Thrusters\n15 BMU · 30 DU · 15 Thrusters\n♀ 20/25/29 kg · ♂ 29/38/47 kg',unit:'Zeit (mm:ss)'},
+  {id:'o253',name:'25.3',type:'For Time',cat:'Open',year:'2025',desc:'For Time (Cap 20 min)\n5 Wall Walks · 50 Cal Row · 5 Wall Walks\n25 Deadlifts · 5 Wall Walks · 25 Cleans\n5 Wall Walks · 25 Snatches · 5 Wall Walks · 50 Cal Row\n♀ DL70/Cl38/Sn29 · ♂ DL102/Cl61/Sn43 kg',unit:'Zeit (mm:ss)'},
   // OPEN 2026
-  {id:'o261',name:'26.1',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 12 min) — Pyramide:\n20 WBS · 18 Box Jump-Overs\n30 WBS · 18 Box Jump-Overs\n40 WBS · 18 MB Box Step-Overs\n66 WBS · 18 MB Box Step-Overs\n40 WBS · 18 Box Jump-Overs\n30 WBS · 18 Box Jump-Overs · 20 WBS\n♀ 6 kg/50 cm · ♂ 9 kg/60 cm',unit:'Zeit (mm:ss)'},
-  {id:'o262',name:'26.2',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 15 min) — 3 Rounds:\nRd1: 80ft DB OH Lunge + 20 DB Snatches + 20 Pull-ups\nRd2: 80ft DB OH Lunge + 20 DB Snatches + 20 C2B\nRd3: 80ft DB OH Lunge + 20 DB Snatches + 20 Ring MU\n♀ 16 kg · ♂ 22.5 kg',unit:'Zeit (mm:ss)'},
-  {id:'o263',name:'26.3',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 16 min) — 6 Rounds:\nRds 1-2: 12 Burpees over Bar + 12 Cleans + 12 Thrusters\nRds 3-4: gleich, schwerer\nRds 5-6: gleich, am schwersten\n♀ 29/34/38 kg · ♂ 43/52/61 kg',unit:'Zeit (mm:ss)'},
+  {id:'o261',name:'26.1',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 12 min) — Pyramide:\n20/30/40/66/40/30/20 Wall-Ball Shots\nmit je 18 Box Jump-Overs dazwischen\n♀ 6 kg/50 cm · ♂ 9 kg/60 cm',unit:'Zeit (mm:ss)'},
+  {id:'o262',name:'26.2',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 15 min) — 3 Rounds:\nRd1: 80ft DB OH Lunge + 20 Snatches + 20 Pull-ups\nRd2: gleich + C2B · Rd3: gleich + Ring MU\n♀ 16 kg · ♂ 22.5 kg',unit:'Zeit (mm:ss)'},
+  {id:'o263',name:'26.3',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 16 min) — 6 Rounds:\nRds 1-2/3-4/5-6: 12 Burpees + 12 Cleans + 12 Thrusters\nGewicht steigt jede 2 Runden\n♀ 29/34/38 kg · ♂ 43/52/61 kg',unit:'Zeit (mm:ss)'},
 ];
 
-const CATS=['Alle','Girls','Hero','Benchmark','Strength','Open'];
-const YRS=['Alle','2024','2025','2026'];
+const CATS = ['Alle','Girls','Hero','Benchmark','Strength','Open'];
+const YRS  = ['Alle','2024','2025','2026'];
 
-function ldb(){
-  try{DB=JSON.parse(localStorage.getItem(SK))||{users:{},scores:{}};}
-  catch(e){DB={users:{},scores:{}};}
-  DB.users=DB.users||{};DB.scores=DB.scores||{};
+// ── AUTH SCREENS ──────────────────────────────────────────────────
+function showScr(id) {
+  document.querySelectorAll('.sc').forEach(e => e.classList.toggle('on', e.id === id));
 }
-function sdb(){localStorage.setItem(SK,JSON.stringify(DB));}
+function sat(t) {
+  ['alog','areg','areset'].forEach(id => {
+    document.getElementById(id).style.display = id === ('a'+t) || (t==='login'&&id==='alog') ? '' : 'none';
+  });
+  document.querySelectorAll('.tb').forEach((b,i) => b.classList.toggle('on',(i===0)===(t==='login')));
+  document.getElementById('am').textContent = '';
+}
+function smsg(id, tx, tp) {
+  const e = document.getElementById(id);
+  if (e) { e.className = 'msg ' + tp; e.textContent = tx; }
+}
+function setBtn(id, loading, orig) {
+  const b = document.getElementById(id);
+  if (!b) return;
+  b.disabled = loading;
+  b.innerHTML = loading ? `<span class="spin"></span>Bitte warten…` : orig;
+}
 
-// Testuser beim ersten Laden anlegen
-function initTestUser(){
-  if(!DB.users['max@box.at']){
-    DB.users['max@box.at']={
-      email:'max@box.at',first:'Max',last:'Mustermann',
-      box:'CrossFit Amstetten',pw:'test123',since:'2024-09-01'
-    };
-    DB.scores['max@box.at']={
-      fran:[{val:'4:32',date:'2025-03-15',note:'RX',ts:Date.now()-100000},{val:'5:01',date:'2024-11-02',note:'RX',ts:Date.now()-200000}],
-      annie:[{val:'7:44',date:'2025-01-10',note:'RX',ts:Date.now()-220000}],
-      murph:[{val:'42:17',date:'2025-05-28',note:'mit Weste',ts:Date.now()-50000}],
-      bs:[{val:'120',date:'2025-04-10',note:'PR!',ts:Date.now()-80000}],
-      bp:[{val:'95',date:'2025-01-18',note:'PR',ts:Date.now()-180000}],
-      fs:[{val:'100',date:'2025-03-01',note:'',ts:Date.now()-160000}],
-      cl:[{val:'85',date:'2025-02-10',note:'PR',ts:Date.now()-170000}],
-      o261:[{val:'11:02',date:'2026-02-28',note:'RX',ts:Date.now()-60000}],
-      o263:[{val:'192',date:'2026-03-14',note:'RX',ts:Date.now()-20000}],
-    };
-    sdb();
+// ── REGISTER ──────────────────────────────────────────────────────
+async function doReg() {
+  const f = sanitize(document.getElementById('rf').value, 50);
+  const l = sanitize(document.getElementById('rl').value, 50);
+  const e = sanitize(document.getElementById('re').value, 254).toLowerCase();
+  const p = document.getElementById('rp').value;
+  const bx = sanitize(document.getElementById('rb').value, 100);
+
+  if (!f || !l) return smsg('am','Vor- und Nachname sind Pflicht.','err');
+  if (!validEmail(e)) return smsg('am','Ungültige E-Mail-Adresse.','err');
+  if (!validPassword(p)) return smsg('am','Passwort muss mind. 8 Zeichen, Groß-/Kleinbuchstaben und eine Zahl enthalten.','err');
+
+  setBtn('btn-reg', true);
+  const { error } = await sb.auth.signUp({
+    email: e, password: p,
+    options: { data: { first_name: f, last_name: l, box: bx } }
+  });
+  setBtn('btn-reg', false, 'Konto erstellen');
+  if (error) return smsg('am', error.message, 'err');
+  smsg('am','Registrierung erfolgreich! Bitte E-Mail bestätigen (falls aktiviert).','ok');
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────────
+async function doLogin() {
+  if (!checkLoginRateLimit()) return;
+  const e = sanitize(document.getElementById('le').value, 254).toLowerCase();
+  const p = document.getElementById('lp').value;
+  if (!validEmail(e)) return smsg('am','Ungültige E-Mail-Adresse.','err');
+  if (!p) return smsg('am','Bitte Passwort eingeben.','err');
+
+  setBtn('btn-login', true);
+  const { error } = await sb.auth.signInWithPassword({ email: e, password: p });
+  setBtn('btn-login', false, 'Einloggen');
+  if (error) {
+    smsg('am','E-Mail oder Passwort falsch.','err'); // absichtlich vage
+    return;
   }
+  loginAttempts = 0; // reset bei Erfolg
 }
 
-function sat(t){
-  document.getElementById('alog').style.display=t==='login'?'':'none';
-  document.getElementById('areg').style.display=t==='reg'?'':'none';
-  document.querySelectorAll('.tb').forEach((b,i)=>b.classList.toggle('on',(i===0)===(t==='login')));
+// ── PASSWORD RESET ────────────────────────────────────────────────
+async function doReset() {
+  const e = sanitize(document.getElementById('reset-email').value, 254).toLowerCase();
+  if (!validEmail(e)) return smsg('am','Ungültige E-Mail-Adresse.','err');
+  setBtn('btn-reset', true);
+  await sb.auth.resetPasswordForEmail(e, {
+    redirectTo: window.location.origin + window.location.pathname
+  });
+  setBtn('btn-reset', false, 'Reset-Link senden');
+  // Immer gleiche Meldung (kein User-Enumeration)
+  smsg('am','Falls ein Konto existiert, wurde ein Reset-Link gesendet.','ok');
 }
-function sm(id,tx,tp){const e=document.getElementById(id);e.className='msg '+tp;e.textContent=tx;}
 
-function dor(){
-  const f=document.getElementById('rf').value.trim(),l=document.getElementById('rl').value.trim();
-  const e=document.getElementById('re').value.trim().toLowerCase(),p=document.getElementById('rp').value;
-  const bx=document.getElementById('rb').value.trim();
-  if(!f||!l||!e||!p)return sm('am','Bitte alle Pflichtfelder ausfüllen.','err');
-  if(p.length<6)return sm('am','Passwort mind. 6 Zeichen.','err');
-  if(DB.users[e])return sm('am','E-Mail bereits registriert.','err');
-  DB.users[e]={email:e,first:f,last:l,box:bx,pw:p,since:new Date().toISOString().split('T')[0]};
-  sdb();sm('am','Konto erstellt! Jetzt einloggen.','ok');sat('login');
+// ── LOGOUT ────────────────────────────────────────────────────────
+async function doLogout() {
+  clearTimeout(inactivityTimer);
+  clearTimeout(sessionTimer);
+  await sb.auth.signOut();
+  CU = null; CP = null; CW = null;
+  cachedScores = {};
+  loginAttempts = 0;
+  showScr('s-auth');
+  sat('login');
 }
-function dol(){
-  const e=document.getElementById('le').value.trim().toLowerCase(),p=document.getElementById('lp').value;
-  if(!DB.users[e]||DB.users[e].pw!==p)return sm('am','E-Mail oder Passwort falsch.','err');
-  CU=DB.users[e];ea();
-}
-function dout(){CU=null;document.getElementById('sapp').classList.remove('on');document.getElementById('sa').classList.add('on');}
 
-function ea(){
-  document.getElementById('sa').classList.remove('on');
-  document.getElementById('sapp').classList.add('on');
-  const ini=(CU.first[0]+CU.last[0]).toUpperCase();
-  document.getElementById('navav').textContent=ini;
-  document.getElementById('pav').textContent=ini;
-  document.getElementById('navnm').textContent=CU.first+' '+CU.last;
-  document.getElementById('pnm').textContent=CU.first+' '+CU.last;
-  document.getElementById('psi').textContent='Mitglied seit '+CU.since+(CU.box?' · '+CU.box:'');
+// ── SESSION MANAGEMENT ────────────────────────────────────────────
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+    if (session?.user) {
+      CU = session.user;
+      if (session.expires_at) startSessionTimer(session.expires_at);
+      resetInactivity();
+      await loadProfile();
+      if (CP) enterApp();
+      else { showScr('s-auth'); smsg('am','Profil konnte nicht geladen werden.','err'); }
+    }
+  } else if (event === 'SIGNED_OUT') {
+    showScr('s-auth');
+  } else if (event === 'PASSWORD_RECOVERY') {
+    sat('reset');
+    showScr('s-auth');
+    smsg('am','Bitte neues Passwort eingeben.','ok');
+  }
+});
+
+async function loadProfile() {
+  const { data, error } = await sb.from('profiles').select('*').eq('id', CU.id).single();
+  if (error || !data) { CP = null; return; }
+  CP = data;
+}
+
+function enterApp() {
+  const ini = ((CP.first_name?.[0]||'') + (CP.last_name?.[0]||'')).toUpperCase() || '?';
+  ['nav-av','p-av'].forEach(id => document.getElementById(id).textContent = esc(ini));
+  document.getElementById('nav-nm').textContent = esc(CP.first_name + ' ' + CP.last_name);
+  document.getElementById('p-nm').textContent   = esc(CP.first_name + ' ' + CP.last_name);
+  document.getElementById('p-si').textContent   = 'Mitglied seit ' + (CP.created_at?.split('T')[0]||'') + (CP.box ? ' · ' + esc(CP.box) : '');
+  const isAdmin = CP.is_admin === true;
+  document.getElementById('nav-admin').style.display = isAdmin ? '' : 'none';
+  document.getElementById('nav-adm').style.display   = isAdmin ? '' : 'none';
+  showScr('s-app');
   sv('bm');
 }
 
-function sv(v){
-  document.querySelectorAll('.vi').forEach(e=>e.classList.toggle('on',e.id==='v'+v));
-  document.querySelectorAll('[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
-  if(v==='cw')rcw();if(v==='pr')rpr();if(v==='bm')rb();
+// ── VIEWS ─────────────────────────────────────────────────────────
+function sv(v) {
+  if (!CU || !CP) return doLogout();
+  document.querySelectorAll('.vi').forEach(e => e.classList.toggle('on', e.id === 'v' + v));
+  document.querySelectorAll('[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  if (v === 'bm')  { loadBestScores(); }
+  if (v === 'cw')  loadCW();
+  if (v === 'pr')  loadProfile().then(renderProfile);
+  if (v === 'adm') { if (CP?.is_admin) loadAdmin(); }
 }
 
-function scat(c){AC=c;if(c!=='Open')AY='Alle';rb();}
-function syr(y){AY=y;rb();}
+// ── BEST SCORES ───────────────────────────────────────────────────
+async function loadBestScores() {
+  if (!CU) return;
+  const { data } = await sb.from('scores')
+    .select('wod_id,value,date')
+    .eq('user_id', CU.id)
+    .order('date', { ascending: false });
+  cachedScores = {};
+  (data || []).forEach(s => {
+    if (!cachedScores[s.wod_id]) cachedScores[s.wod_id] = { v: esc(s.value), d: esc(s.date) };
+  });
+  rb();
+}
 
-function rb(){
-  const q=(document.getElementById('bsq').value||'').toLowerCase();
-  document.getElementById('bfr').innerHTML=CATS.map(c=>
-    `<button class="fb${AC===c?' on':''}" onclick="scat('${c}')">${c}</button>`).join('');
-  const yw=document.getElementById('yfw');
-  if(AC==='Open'){
-    yw.style.display='';
-    document.getElementById('yf').innerHTML=`<span class="yl">Jahr:</span>`+
-      YRS.map(y=>`<button class="yb${AY===y?' on':''}" onclick="syr('${y}')">${y}</button>`).join('');
-  } else yw.style.display='none';
-  const fil=WODs.filter(w=>{
-    if(AC!=='Alle'&&w.cat!==AC)return false;
-    if(AC==='Open'&&AY!=='Alle'&&w.year!==AY)return false;
-    if(q&&!w.name.toLowerCase().includes(q)&&!w.desc.toLowerCase().includes(q))return false;
+// ── BENCHMARKS ────────────────────────────────────────────────────
+function scat(c) { AC = c; if (c !== 'Open') AY = 'Alle'; rb(); }
+function syr(y)  { AY = y; rb(); }
+
+function rb() {
+  const q = sanitize(document.getElementById('bsq').value, 100).toLowerCase();
+  document.getElementById('bfr').innerHTML = CATS.map(c =>
+    `<button class="fb${AC===c?' on':''}" onclick="scat('${esc(c)}')">${esc(c)}</button>`).join('');
+  const yw = document.getElementById('yfw');
+  if (AC === 'Open') {
+    yw.style.display = '';
+    document.getElementById('yf').innerHTML = `<span class="yl">Jahr:</span>` +
+      YRS.map(y => `<button class="yb${AY===y?' on':''}" onclick="syr('${esc(y)}')">${esc(y)}</button>`).join('');
+  } else yw.style.display = 'none';
+
+  const fil = WODs.filter(w => {
+    if (AC !== 'Alle' && w.cat !== AC) return false;
+    if (AC === 'Open' && AY !== 'Alle' && w.year !== AY) return false;
+    if (q && !w.name.toLowerCase().includes(q) && !w.desc.toLowerCase().includes(q)) return false;
     return true;
   });
-  const list=document.getElementById('bl');
-  if(!fil.length){list.innerHTML='<div class="em">Keine Workouts gefunden.</div>';return;}
-  list.innerHTML=fil.map(w=>{
-    const pr=gbs(w.id);
-    const io=w.cat==='Open';
-    return`<div class="wc" onclick="osm('${w.id}','b')">
-      <div class="wt"><div><div class="wn">${w.name}</div><div class="wca">${w.cat}${!io?' · '+w.type:''}</div></div>
-      <span class="wb ${io?'bo':'bd'}">${io?'Open '+w.year:w.type}</span></div>
-      <div class="wd">${w.desc.replace(/\n/g,'<br>')}</div>
-      ${pr?`<div class="wp"><span class="pl">Beste:</span><span class="pv">${pr.v}</span><span class="pd">&nbsp;${pr.d}</span></div>`:''}
+  const list = document.getElementById('bl');
+  if (!fil.length) { list.innerHTML = '<div class="em">Keine Workouts gefunden.</div>'; return; }
+  list.innerHTML = fil.map(w => {
+    const pr = cachedScores[w.id];
+    const io = w.cat === 'Open';
+    return `<div class="wc" onclick="openModal('${esc(w.id)}','bench')">
+      <div class="wt"><div>
+        <div class="wn">${esc(w.name)}</div>
+        <div class="wca">${esc(w.cat)}${!io ? ' · ' + esc(w.type) : ''}</div>
+      </div>
+      <span class="wb ${io?'bo':'bd'}">${io ? 'Open ' + esc(w.year) : esc(w.type)}</span></div>
+      <div class="wd">${esc(w.desc).replace(/\n/g,'<br>')}</div>
+      ${pr ? `<div class="wp"><span class="pl">Beste:</span><span class="pv">${pr.v}</span><span class="pd">&nbsp;${pr.d}</span></div>` : ''}
     </div>`;
   }).join('');
 }
 
-function gcw(){if(!DB.scores[CU.email])return[];return DB.scores[CU.email]._cw||[];}
-function scw(){
-  const n=document.getElementById('wna').value.trim().toUpperCase();
-  const ty=document.getElementById('wty').value,de=document.getElementById('wde').value.trim();
-  const un=document.getElementById('wun').value;
-  if(!n||!de)return sm('addm','Name und Beschreibung sind Pflicht.','err');
-  if(!DB.scores[CU.email])DB.scores[CU.email]={};
-  if(!DB.scores[CU.email]._cw)DB.scores[CU.email]._cw=[];
-  DB.scores[CU.email]._cw.push({id:'c_'+Date.now(),name:n,type:ty,desc:de,unit:un,cat:'Eigene'});
-  sdb();sm('addm','Workout gespeichert!','ok');
-  document.getElementById('wna').value='';document.getElementById('wde').value='';
-}
-function rcw(){
-  const wods=gcw();const list=document.getElementById('cl');
-  if(!wods.length){list.innerHTML='<div class="em">Noch keine eigenen Workouts.<br>Leg eines unter "Anlegen" an.</div>';return;}
-  list.innerHTML=wods.map(w=>{const pr=gbs(w.id);return`<div class="wc" onclick="osm('${w.id}','c')"><div class="wt"><div class="wn">${w.name}</div><span class="wb bd">${w.type}</span></div><div class="wd">${w.desc.replace(/\n/g,'<br>')}</div>${pr?`<div class="wp"><span class="pl">Beste:</span><span class="pv">${pr.v}</span><span class="pd">&nbsp;${pr.d}</span></div>`:''}</div>`;}).join('');
-}
-
-function gus(id){if(!DB.scores[CU.email])return[];return DB.scores[CU.email][id]||[];}
-function gbs(id){const s=gus(id);return s.length?{v:s[0].val,d:s[0].date}:null;}
-
-function osm(id,src){
-  const w=src==='b'?WODs.find(x=>x.id===id):gcw().find(x=>x.id===id);
-  if(!w)return;CW=w;
-  document.getElementById('mwn').textContent=w.name;
-  document.getElementById('mwd').innerHTML=w.desc.replace(/\n/g,'<br>')+`<br><span style="color:var(--a);font-size:11px;font-weight:600;">${w.type} · ${w.unit}${w.year?' · Open '+w.year:''}</span>`;
-  document.getElementById('scl').textContent=w.unit;
-  document.getElementById('svi').placeholder=w.unit==='Zeit (mm:ss)'?'12:34':w.unit==='kg'?'100':w.unit==='Runden + Reps'?'8+12':'–';
-  document.getElementById('sdi').value=new Date().toISOString().split('T')[0];
-  document.getElementById('svi').value='';document.getElementById('sni').value='';
-  document.getElementById('smsg').textContent='';
-  rsl();document.getElementById('sov').classList.add('on');
-}
-function csm(e,f){if(f||(e&&e.target===document.getElementById('sov'))){document.getElementById('sov').classList.remove('on');CW=null;rb();rcw();}}
-function ss(){
-  const v=document.getElementById('svi').value.trim(),d=document.getElementById('sdi').value,n=document.getElementById('sni').value.trim();
-  if(!v)return sm('smsg','Bitte Score eingeben.','err');
-  if(!d)return sm('smsg','Bitte Datum wählen.','err');
-  if(!DB.scores[CU.email])DB.scores[CU.email]={};
-  if(!DB.scores[CU.email][CW.id])DB.scores[CU.email][CW.id]=[];
-  DB.scores[CU.email][CW.id].unshift({val:v,date:d,note:n,ts:Date.now()});
-  sdb();sm('smsg','Score gespeichert!','ok');
-  document.getElementById('svi').value='';document.getElementById('sni').value='';
-  rsl();rpr();
-}
-function ds(id,i){if(!confirm('Score löschen?'))return;DB.scores[CU.email][id].splice(i,1);sdb();rsl();rpr();}
-function rsl(){
-  const sc=gus(CW.id);const el=document.getElementById('msl');
-  if(!sc.length){el.innerHTML='<div style="color:var(--m);font-size:12px;padding:6px 0;">Noch kein Score eingetragen.</div>';return;}
-  el.innerHTML=sc.map((s,i)=>`<div class="sr"><div><div class="sv">${s.val}</div><div class="si2">${s.date}${s.note?' · '+s.note:''}</div></div><button class="bs bsd" onclick="ds('${CW.id}',${i})">Löschen</button></div>`).join('');
-}
-function rpr(){
-  if(!CU)return;
-  const us=DB.scores[CU.email]||{};
-  let tot=0,done=0;const rec=[];
-  Object.entries(us).forEach(([k,v])=>{if(k==='_cw')return;if(Array.isArray(v)&&v.length){done++;tot+=v.length;v.forEach(s=>rec.push({wid:k,...s}));}});
-  rec.sort((a,b)=>b.ts-a.ts);
-  const cc=(us._cw||[]).length;
-  document.getElementById('pst').innerHTML=`<div class="sk"><div class="sv2">${tot}</div><div class="sl2">Scores</div></div><div class="sk"><div class="sv2">${done}</div><div class="sl2">WODs</div></div><div class="sk"><div class="sv2">${cc}</div><div class="sl2">Eigene</div></div>`;
-  const re=document.getElementById('prec');
-  if(!rec.length){re.innerHTML='<div class="em">Noch keine Scores eingetragen.</div>';return;}
-  re.innerHTML=rec.slice(0,12).map(s=>{
-    const w=WODs.find(x=>x.id===s.wid)||(gcw().find(x=>x.id===s.wid));
-    const nm=w?w.name:s.wid;
-    return`<div class="sr" style="margin-bottom:7px;"><div><div style="font-weight:600;font-size:13px;">${nm}</div><div class="si2">${s.date}${s.note?' · '+s.note:''}</div></div><div class="sv">${s.val}</div></div>`;
+// ── CUSTOM WODs ───────────────────────────────────────────────────
+async function loadCW() {
+  if (!CU) return;
+  const list = document.getElementById('cl');
+  list.innerHTML = '<div class="em"><span class="spin"></span>Lade…</div>';
+  const { data } = await sb.from('custom_wods').select('*').eq('user_id', CU.id).order('created_at', { ascending: false });
+  if (!data?.length) { list.innerHTML = '<div class="em">Noch keine eigenen Workouts.<br>Leg eines unter "Anlegen" an.</div>'; return; }
+  list.innerHTML = data.map(w => {
+    const pr = cachedScores['cw_' + w.id];
+    return `<div class="wc" onclick="openModal('${esc(w.id)}','custom','${esc(w.name)}','${esc(w.type)}','${esc(w.unit)}')">
+      <div class="wt"><div class="wn">${esc(w.name)}</div><span class="wb bd">${esc(w.type)}</span></div>
+      <div class="wd">${esc(w.description).replace(/\n/g,'<br>')}</div>
+      ${pr ? `<div class="wp"><span class="pl">Beste:</span><span class="pv">${pr.v}</span><span class="pd">&nbsp;${pr.d}</span></div>` : ''}
+    </div>`;
   }).join('');
 }
 
-// START
-ldb();
-initTestUser();
+async function saveCW() {
+  if (!CU) return;
+  const n  = sanitize(document.getElementById('wna').value, 100).toUpperCase();
+  const ty = document.getElementById('wty').value;
+  const de = sanitize(document.getElementById('wde').value, 1000);
+  const un = document.getElementById('wun').value;
+  if (!n || n.length < 2) return smsg('addm','Name muss mindestens 2 Zeichen haben.','err');
+  if (!de || de.length < 5) return smsg('addm','Beschreibung muss mindestens 5 Zeichen haben.','err');
+  const btn = document.getElementById('btn-savewod'); btn.disabled = true;
+  const { error } = await sb.from('custom_wods').insert({ user_id: CU.id, name: n, type: ty, description: de, unit: un });
+  btn.disabled = false;
+  if (error) return smsg('addm','Fehler beim Speichern.','err');
+  smsg('addm','Workout gespeichert!','ok');
+  document.getElementById('wna').value = '';
+  document.getElementById('wde').value = '';
+}
+
+// ── SCORE MODAL ───────────────────────────────────────────────────
+function openModal(id, src, cwName, cwType, cwUnit) {
+  if (!CU || !CP) return;
+  const w = src === 'bench'
+    ? WODs.find(x => x.id === id)
+    : { id: 'cw_' + id, name: cwName, type: cwType, unit: cwUnit, cat: 'Eigene' };
+  if (!w) return;
+  CW = w;
+  document.getElementById('m-wn').textContent = w.name;
+  document.getElementById('m-wd').innerHTML =
+    (src === 'bench' ? esc(w.desc).replace(/\n/g,'<br>') + '<br>' : '') +
+    `<span style="color:var(--a);font-size:11px;font-weight:600;">${esc(w.type)} · ${esc(w.unit)}${w.year ? ' · Open ' + esc(w.year) : ''}</span>`;
+  document.getElementById('scl').textContent = w.unit;
+  document.getElementById('svi').placeholder = w.unit === 'Zeit (mm:ss)' ? '12:34' : w.unit === 'kg' ? '100' : w.unit === 'Runden + Reps' ? '8+12' : '–';
+  document.getElementById('sdi').value = new Date().toISOString().split('T')[0];
+  document.getElementById('svi').value = '';
+  document.getElementById('sni').value = '';
+  document.getElementById('smsg').textContent = '';
+  loadScoreList();
+  document.getElementById('sov').classList.add('on');
+}
+
+function csm(e, f) {
+  if (f || (e && e.target === document.getElementById('sov'))) {
+    document.getElementById('sov').classList.remove('on');
+    CW = null;
+    loadBestScores();
+  }
+}
+
+async function loadScoreList() {
+  if (!CU || !CW) return;
+  const el = document.getElementById('msl');
+  el.innerHTML = '<div style="color:var(--m);font-size:12px;">Lade…</div>';
+  const { data } = await sb.from('scores')
+    .select('*').eq('user_id', CU.id).eq('wod_id', CW.id)
+    .order('date', { ascending: false }).limit(50);
+  if (!data?.length) {
+    el.innerHTML = '<div style="color:var(--m);font-size:12px;padding:6px 0;">Noch kein Score eingetragen.</div>';
+    return;
+  }
+  el.innerHTML = data.map(s => `
+    <div class="sr">
+      <div>
+        <div class="sv">${esc(s.value)}</div>
+        <div class="si2">${esc(s.date)}${s.note ? ' · ' + esc(s.note) : ''}</div>
+      </div>
+      <button class="bs bsd" onclick="delScore('${esc(s.id)}')">Löschen</button>
+    </div>`).join('');
+}
+
+async function saveScore() {
+  if (!CU || !CW) return;
+  if (!checkScoreRateLimit()) return;
+  const v = sanitize(document.getElementById('svi').value, 50);
+  const d = document.getElementById('sdi').value;
+  const n = sanitize(document.getElementById('sni').value, 200);
+  if (!validScoreValue(v)) return smsg('smsg','Ungültiger Score. Erlaubt: Zahlen, Doppelpunkt, Plus, Buchstaben.','err');
+  if (!validDate(d)) return smsg('smsg','Ungültiges Datum.','err');
+  const btn = document.getElementById('btn-score'); btn.disabled = true;
+  const { error } = await sb.from('scores').insert({
+    user_id: CU.id, wod_id: CW.id, wod_name: CW.name,
+    value: v, date: d, note: n || null
+  });
+  btn.disabled = false;
+  if (error) return smsg('smsg','Fehler beim Speichern.','err');
+  smsg('smsg','Score gespeichert!','ok');
+  document.getElementById('svi').value = '';
+  document.getElementById('sni').value = '';
+  loadScoreList();
+  loadBestScores();
+  loadProfile().then(renderProfile);
+}
+
+async function delScore(id) {
+  if (!CU || !id) return;
+  if (!confirm('Score wirklich löschen?')) return;
+  const { error } = await sb.from('scores').delete().eq('id', id).eq('user_id', CU.id);
+  if (error) return;
+  loadScoreList();
+  loadBestScores();
+}
+
+// ── PROFIL ────────────────────────────────────────────────────────
+async function renderProfile() {
+  if (!CU) return;
+  const { data: scores } = await sb.from('scores').select('*').eq('user_id', CU.id).order('created_at', { ascending: false }).limit(200);
+  const total = scores?.length || 0;
+  const done = new Set((scores || []).map(s => s.wod_id)).size;
+  const { data: cwods } = await sb.from('custom_wods').select('id').eq('user_id', CU.id);
+  document.getElementById('p-st').innerHTML = `
+    <div class="sk"><div class="sv2">${total}</div><div class="sl2">Scores</div></div>
+    <div class="sk"><div class="sv2">${done}</div><div class="sl2">WODs</div></div>
+    <div class="sk"><div class="sv2">${cwods?.length||0}</div><div class="sl2">Eigene</div></div>`;
+  const re = document.getElementById('p-rec');
+  if (!scores?.length) { re.innerHTML = '<div class="em">Noch keine Scores eingetragen.</div>'; return; }
+  re.innerHTML = scores.slice(0,12).map(s => `
+    <div class="sr" style="margin-bottom:7px;">
+      <div>
+        <div style="font-weight:600;font-size:13px;">${esc(s.wod_name)}</div>
+        <div class="si2">${esc(s.date)}${s.note ? ' · ' + esc(s.note) : ''}</div>
+      </div>
+      <div class="sv">${esc(s.value)}</div>
+    </div>`).join('');
+}
+
+// ── ADMIN ─────────────────────────────────────────────────────────
+async function loadAdmin() {
+  if (!CP?.is_admin) return;
+  const el = document.getElementById('adm-content');
+  el.innerHTML = '<div class="em"><span class="spin"></span>Lade Mitglieder…</div>';
+  const { data, error } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
+  if (error || !data) { el.innerHTML = '<div class="em">Fehler beim Laden.</div>'; return; }
+  el.innerHTML = `
+    <p style="font-size:12px;color:var(--m);margin-bottom:1rem;">${data.length} Mitglieder registriert</p>
+    <div style="overflow-x:auto;">
+    <table class="admin-table">
+      <thead><tr>
+        <th>Name</th><th>E-Mail</th><th>Box</th><th>Seit</th><th>Rolle</th><th>Aktionen</th>
+      </tr></thead>
+      <tbody>
+        ${data.map(u => `
+          <tr>
+            <td style="font-weight:600;">${esc(u.first_name||'')} ${esc(u.last_name||'')}</td>
+            <td style="color:var(--m)">${esc(u.email||'')}</td>
+            <td style="color:var(--m)">${esc(u.box||'–')}</td>
+            <td style="color:var(--m);white-space:nowrap">${u.created_at?.split('T')[0]||''}</td>
+            <td><span class="tag ${u.is_admin?'tag-admin':'tag-user'}">${u.is_admin?'ADMIN':'User'}</span></td>
+            <td>
+              ${u.id !== CU.id ? `
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <button class="bs" onclick="toggleAdmin('${esc(u.id)}',${u.is_admin},'${esc(u.first_name)} ${esc(u.last_name)}')">${u.is_admin?'Admin entfernen':'Zum Admin'}</button>
+                  <button class="bs bsd" onclick="delUser('${esc(u.id)}','${esc(u.first_name)} ${esc(u.last_name)}')">Löschen</button>
+                </div>` : '<span style="color:var(--m);font-size:11px;">Du selbst</span>'}
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+async function toggleAdmin(uid, isAdmin, name) {
+  if (!CP?.is_admin) return;
+  if (!confirm(`${isAdmin ? 'Admin-Rechte entfernen' : 'Admin-Rechte geben'} für ${name}?`)) return;
+  const { error } = await sb.from('profiles').update({ is_admin: !isAdmin }).eq('id', uid);
+  if (error) return alert('Fehler: ' + error.message);
+  loadAdmin();
+}
+
+async function delUser(uid, name) {
+  if (!CP?.is_admin) return;
+  if (!confirm(`Mitglied "${name}" wirklich löschen?\n\nAlle Scores und eigene Workouts werden ebenfalls gelöscht.\n\nDiese Aktion kann nicht rückgängig gemacht werden.`)) return;
+  const { error } = await sb.from('profiles').delete().eq('id', uid);
+  if (error) return alert('Fehler beim Löschen: ' + error.message);
+  loadAdmin();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) {
+    showScr('s-auth');
+  }
+  // onAuthStateChange übernimmt den Rest
+})();
 </script>
 </body>
 </html>
