@@ -96,7 +96,6 @@ textarea{resize:vertical;min-height:70px;}
 .admin-table{width:100%;border-collapse:collapse;font-size:13px;}
 .admin-table th{text-align:left;padding:8px 12px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--m);border-bottom:1px solid var(--b);}
 .admin-table td{padding:10px 12px;border-bottom:1px solid var(--b);vertical-align:middle;}
-.admin-table tr:hover td{background:rgba(255,255,255,.02);}
 .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;}
 .tag-admin{background:rgba(232,85,64,.15);color:var(--d);}
 .tag-user{background:rgba(255,255,255,.06);color:var(--m);}
@@ -108,13 +107,11 @@ textarea{resize:vertical;min-height:70px;}
   .dt{font-size:11px;padding:8px 2px;}
   .nn,.abadge{display:none;}
   .r2{grid-template-columns:1fr;}
-  .admin-table th:nth-child(3),.admin-table td:nth-child(3){display:none;}
 }
 </style>
 </head>
 <body>
 
-<!-- AUTH -->
 <div class="sc on" id="s-auth">
   <div class="aw">
     <div class="ac">
@@ -126,29 +123,27 @@ textarea{resize:vertical;min-height:70px;}
       </div>
       <div id="alog">
         <label>E-Mail</label>
-        <input type="email" id="le" placeholder="deine@email.com" maxlength="254" autocomplete="email"/>
+        <input type="email" id="le" placeholder="deine@email.com" maxlength="254"/>
         <label>Passwort</label>
-        <input type="password" id="lp" placeholder="••••••••" maxlength="128" autocomplete="current-password"/>
+        <input type="password" id="lp" placeholder="••••••••" maxlength="128"/>
         <button class="bp" id="btn-login" onclick="doLogin()">Einloggen</button>
         <p style="font-size:12px;color:var(--m);margin-top:.75rem;text-align:center;cursor:pointer;" onclick="sat('reset')">Passwort vergessen?</p>
       </div>
       <div id="areg" style="display:none">
         <div class="r2">
-          <div><label>Vorname</label><input type="text" id="rf" placeholder="Max" maxlength="50" autocomplete="given-name"/></div>
-          <div><label>Nachname</label><input type="text" id="rl" placeholder="Mustermann" maxlength="50" autocomplete="family-name"/></div>
+          <div><label>Vorname</label><input type="text" id="rf" placeholder="Max" maxlength="50"/></div>
+          <div><label>Nachname</label><input type="text" id="rl" placeholder="Mustermann" maxlength="50"/></div>
         </div>
-        <label>E-Mail</label>
-        <input type="email" id="re" placeholder="deine@email.com" maxlength="254" autocomplete="email"/>
+        <label>E-Mail</label><input type="email" id="re" placeholder="deine@email.com" maxlength="254"/>
         <label>Passwort</label>
-        <input type="password" id="rp" placeholder="Mind. 8 Zeichen" maxlength="128" autocomplete="new-password" oninput="pwStrength(this.value)"/>
+        <input type="password" id="rp" placeholder="Mind. 8 Zeichen" maxlength="128" oninput="pwStrength(this.value)"/>
         <div class="pw-meter"><div class="pw-bar" id="pw-bar" style="width:0%"></div></div>
         <div class="pw-hint" id="pw-hint">Mind. 8 Zeichen, Groß-/Kleinbuchstaben und eine Zahl</div>
         <label>Box / Gym (optional)</label>
-        <input type="text" id="rb" placeholder="CrossFit Amstetten" maxlength="100" autocomplete="organization"/>
+        <input type="text" id="rb" placeholder="CrossFit Amstetten" maxlength="100"/>
         <button class="bp" id="btn-reg" onclick="doReg()">Konto erstellen</button>
       </div>
       <div id="areset" style="display:none">
-        <p style="color:var(--m);font-size:13px;margin-bottom:1rem;">Wir senden dir einen Reset-Link per E-Mail.</p>
         <label>E-Mail</label>
         <input type="email" id="reset-email" placeholder="deine@email.com" maxlength="254"/>
         <button class="bp" id="btn-reset" onclick="doReset()">Reset-Link senden</button>
@@ -159,7 +154,6 @@ textarea{resize:vertical;min-height:70px;}
   </div>
 </div>
 
-<!-- APP -->
 <div class="sc" id="s-app">
   <nav>
     <div class="logo">LOG YOUR SCORE</div>
@@ -228,7 +222,7 @@ textarea{resize:vertical;min-height:70px;}
       </div>
       <div class="ms2">Neuen Score eintragen</div>
       <div class="r2">
-        <div><label id="scl">Score</label><input type="text" id="svi" maxlength="50" autocomplete="off"/></div>
+        <div><label id="scl">Score</label><input type="text" id="svi" maxlength="50"/></div>
         <div><label>Datum</label><input type="date" id="sdi"/></div>
       </div>
       <label>Notizen (optional)</label>
@@ -244,24 +238,25 @@ textarea{resize:vertical;min-height:70px;}
 <script>
 'use strict';
 
-// ── SUPABASE INIT ─────────────────────────────────────────────────
 const sb = supabase.createClient(
   'https://xsbncfytrrgpltymgmpu.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzYm5jZnl0cnJncGx0eW1nbXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyOTg4MzksImV4cCI6MjA5NDg3NDgzOX0.tranbDswHl0Kp9j1EhH5Oyxvc4UVSc7KvtuZ-zSnSek',
-  { auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true } }
+  {
+    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false },
+    realtime: { enabled: false }
+  }
 );
 
-// ── STATE ─────────────────────────────────────────────────────────
-let CU=null, CP=null, CW=null, AC='Alle', AY='Alle', SCORES={};
-let loginTries=0, loginLock=0, lastScore=0;
+let CU=null,CP=null,CW=null,AC='Alle',AY='Alle',SCORES={};
+let loginTries=0,loginLock=0,lastScore=0;
 
-// ── HELPERS ───────────────────────────────────────────────────────
 function esc(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');}
 function san(s,n){return String(s||'').trim().slice(0,n||200);}
-function validEmail(e){return /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/.test(e)&&e.length<=254;}
+function validEmail(e){return/^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/.test(e)&&e.length<=254;}
 function validPw(p){return p.length>=8&&/[A-Z]/.test(p)&&/[a-z]/.test(p)&&/[0-9]/.test(p);}
 function validScore(v){return v.length>0&&v.length<=50&&/^[\d:+\s,.\-\/A-Za-z]+$/.test(v);}
 function validDate(d){if(!d)return false;const dt=new Date(d);return dt>=new Date('2000-01-01')&&dt<=new Date(Date.now()+86400000);}
+
 function pwStrength(p){
   let s=0;
   if(p.length>=8)s++;if(p.length>=12)s++;
@@ -274,6 +269,7 @@ function pwStrength(p){
   const hint=document.getElementById('pw-hint');
   if(hint)hint.textContent=s<3?'Tipp: Groß-/Kleinbuchstaben, Zahlen, Sonderzeichen':'Stärke: '+(l[s]||'');
 }
+
 function smsg(id,tx,tp){const e=document.getElementById(id);if(e){e.className='msg '+tp;e.textContent=tx;}}
 function setBtn(id,loading,orig){const b=document.getElementById(id);if(!b)return;b.disabled=loading;b.innerHTML=loading?'<span class="spin"></span>Bitte warten…':orig;}
 function showScr(id){document.querySelectorAll('.sc').forEach(e=>e.classList.toggle('on',e.id===id));}
@@ -285,7 +281,6 @@ function sat(t){
   document.getElementById('am').textContent='';
 }
 
-// ── AUTH ──────────────────────────────────────────────────────────
 async function doReg(){
   const f=san(document.getElementById('rf').value,50);
   const l=san(document.getElementById('rl').value,50);
@@ -319,9 +314,8 @@ async function doLogin(){
     return smsg('am','E-Mail oder Passwort falsch.','err');
   }
   loginTries=0;
-  // Manuell Profil laden und App starten
-  if(data?.session){
-    CU=data.session.user;
+  if(data?.user){
+    CU=data.user;
     await loadAndEnter();
   }
 }
@@ -338,24 +332,18 @@ async function doReset(){
 async function doLogout(){
   CU=null;CP=null;CW=null;SCORES={};
   await sb.auth.signOut();
-  showScr('s-auth');
-  sat('login');
+  showScr('s-auth');sat('login');
 }
 
-// ── PROFIL LADEN ─────────────────────────────────────────────────
 async function loadAndEnter(){
   if(!CU)return;
-  // Bis zu 3 Versuche (Trigger braucht manchmal etwas Zeit)
+  // Retry bis zu 3x — Trigger braucht manchmal Zeit
   for(let i=0;i<3;i++){
-    const{data}=await sb.from('profiles').select('*').eq('id',CU.id).single();
-    if(data){
-      CP=data;
-      enterApp();
-      return;
-    }
-    if(i<2)await new Promise(r=>setTimeout(r,1000));
+    const{data,error}=await sb.from('profiles').select('*').eq('id',CU.id).single();
+    if(data){CP=data;enterApp();return;}
+    await new Promise(r=>setTimeout(r,1000));
   }
-  smsg('am','Profil konnte nicht geladen werden. Bitte nochmal einloggen.','err');
+  smsg('am','Fehler beim Laden des Profils. Bitte nochmal einloggen.','err');
   showScr('s-auth');
 }
 
@@ -369,34 +357,24 @@ function enterApp(){
   const isAdmin=CP.is_admin===true;
   document.getElementById('nav-admbadge').style.display=isAdmin?'':'none';
   document.getElementById('nav-adm').style.display=isAdmin?'':'none';
-  showScr('s-app');
-  sv('bm');
+  showScr('s-app');sv('bm');
 }
 
-// ── SESSION BEIM LADEN ───────────────────────────────────────────
-// Beim Laden der Seite prüfen ob bereits eingeloggt
-window.addEventListener('load', async()=>{
-  const{data:{session}}=await sb.auth.getSession();
-  if(session?.user){
+// Beim Laden: prüfen ob bereits eingeloggt
+(async()=>{
+  const{data:{session},error}=await sb.auth.getSession();
+  if(session?.user&&!error){
     CU=session.user;
     await loadAndEnter();
-  } else {
-    showScr('s-auth');
   }
-});
+})();
 
-// Token Refresh im Hintergrund
+// Token Refresh
 sb.auth.onAuthStateChange((event,session)=>{
-  if(event==='TOKEN_REFRESHED'&&session){
-    CU=session.user;
-  }
-  if(event==='SIGNED_OUT'){
-    CU=null;CP=null;CW=null;SCORES={};
-    showScr('s-auth');sat('login');
-  }
+  if(event==='TOKEN_REFRESHED'&&session)CU=session.user;
+  if(event==='SIGNED_OUT'){CU=null;CP=null;SCORES={};showScr('s-auth');sat('login');}
 });
 
-// ── WOD DATA ──────────────────────────────────────────────────────
 const WODs=[
   {id:'annie',name:'ANNIE',type:'For Time',cat:'Girls',desc:'50-40-30-20-10 Reps:\nDouble-Unders\nSit-ups',unit:'Zeit (mm:ss)'},
   {id:'angie',name:'ANGIE',type:'For Time',cat:'Girls',desc:'100 Pull-ups\n100 Push-ups\n100 Sit-ups\n100 Air Squats',unit:'Zeit (mm:ss)'},
@@ -424,13 +402,13 @@ const WODs=[
   {id:'patricia',name:'PATRICIA',type:'For Time',cat:'Girls',desc:'5 Rounds:\n400m Run\n10 Rope Climbs (4.5 m)',unit:'Zeit (mm:ss)'},
   {id:'chad',name:'CHAD',type:'For Time',cat:'Hero',desc:'1.000 Step-ups (60/50 cm)\nmit 20 kg Ruck/Weste',unit:'Zeit (mm:ss)'},
   {id:'daniel',name:'DANIEL',type:'AMRAP',cat:'Hero',desc:'20 min AMRAP:\n24 Box Jumps (60 cm)\n24 Push Presses (52/35 kg)\n24 Pull-ups',unit:'Runden + Reps'},
-  {id:'desforges',name:'DESFORGES',type:'For Time',cat:'Hero',desc:'5 Rounds:\n12 Deadlifts (102/70 kg)\n20 Pull-ups\n12 C&J (61/43 kg)\n20 K2E',unit:'Zeit (mm:ss)'},
+  {id:'desforges',name:'DESFORGES',type:'For Time',cat:'Hero',desc:'5 Rounds:\n12 Deadlifts (102/70 kg)\n20 Pull-ups · 12 C&J (61/43 kg) · 20 K2E',unit:'Zeit (mm:ss)'},
   {id:'dt',name:'DT',type:'For Time',cat:'Hero',desc:'5 Rounds:\n12 Deadlifts (70/47 kg)\n9 Hang Power Cleans\n6 Push Jerks',unit:'Zeit (mm:ss)'},
-  {id:'glen',name:'GLEN',type:'For Time',cat:'Hero',desc:'30 C&J (60/43 kg)\n1 Mile Run\n10 Rope Climbs (4.5 m)\n1 Mile Run\n100 Burpees',unit:'Zeit (mm:ss)'},
+  {id:'glen',name:'GLEN',type:'For Time',cat:'Hero',desc:'30 C&J (60/43 kg)\n1 Mile Run · 10 Rope Climbs · 1 Mile Run\n100 Burpees',unit:'Zeit (mm:ss)'},
   {id:'jack',name:'JACK',type:'AMRAP',cat:'Hero',desc:'20 min AMRAP:\n10 Push Presses (52/35 kg)\n10 KB Swings (32/24 kg)\n10 Box Jumps (60/50 cm)',unit:'Runden + Reps'},
   {id:'jt',name:'JT',type:'For Time',cat:'Hero',desc:'21-15-9 Reps:\nHSPU · Ring Dips · Push-ups',unit:'Zeit (mm:ss)'},
   {id:'loredo',name:'LOREDO',type:'For Time',cat:'Hero',desc:'6 Rounds:\n24 Air Squats · 24 Push-ups\n24 Walking Lunges · 400m Run',unit:'Zeit (mm:ss)'},
-  {id:'mr_joshua',name:'MR. JOSHUA',type:'For Time',cat:'Hero',desc:'5 Rounds:\n400m Run\n30 GHD Sit-ups\n15 Deadlifts (102/70 kg)',unit:'Zeit (mm:ss)'},
+  {id:'mr_joshua',name:'MR. JOSHUA',type:'For Time',cat:'Hero',desc:'5 Rounds:\n400m Run · 30 GHD Sit-ups\n15 Deadlifts (102/70 kg)',unit:'Zeit (mm:ss)'},
   {id:'murph',name:'MURPH',type:'For Time',cat:'Hero',desc:'1 Mile Run\n100 Pull-ups · 200 Push-ups · 300 Air Squats\n1 Mile Run (mit/ohne 9 kg Weste)',unit:'Zeit (mm:ss)'},
   {id:'nate',name:'NATE',type:'AMRAP',cat:'Hero',desc:'20 min AMRAP:\n2 Muscle-ups · 4 HSPU · 8 KB Swings (32/24 kg)',unit:'Runden + Reps'},
   {id:'nutts',name:'NUTTS',type:'For Time',cat:'Hero',desc:'10 Muscle-ups · 100m Sprint\n50 Ring Dips · 100m Sprint\n20 Push-ups · 100m Sprint\n50 Air Squats · 100m Sprint',unit:'Zeit (mm:ss)'},
@@ -462,19 +440,18 @@ const WODs=[
   {id:'th',name:'1RM THRUSTER',type:'Max Load',cat:'Strength',desc:'Thruster 1 Rep Max',unit:'kg'},
   {id:'o241',name:'24.1',type:'For Time',cat:'Open',year:'2024',desc:'For Time (Cap 15 min)\n21-15-9 je Seite: DB Snatches + Lateral Burpees\n♀ 15 kg · ♂ 22.5 kg',unit:'Zeit (mm:ss)'},
   {id:'o242',name:'24.2',type:'AMRAP',cat:'Open',year:'2024',desc:'20 min AMRAP:\n300m Row · 10 Deadlifts · 50 DU\n♀ 56 kg · ♂ 83 kg',unit:'Runden + Reps'},
-  {id:'o243',name:'24.3',type:'For Time',cat:'Open',year:'2024',desc:'For Time (Cap 15 min)\n5 Rds: 10 Thrusters + 10 C2B · Rest 1 min\n5 Rds: 7 Thrusters + 7 BMU\n♀ 29/43 kg · ♂ 43/61 kg',unit:'Zeit (mm:ss)'},
-  {id:'o251',name:'25.1',type:'AMRAP',cat:'Open',year:'2025',desc:'15 min AMRAP (Reps +3/Runde):\n3 Lateral Burpees over DB\n3 DB Hang C2OH · 30 ft Walking Lunge\n♀ 15 kg · ♂ 22.5 kg',unit:'Runden + Reps'},
-  {id:'o252',name:'25.2',type:'For Time',cat:'Open',year:'2025',desc:'For Time:\n21 Pull-ups · 42 DU · 21 Thrusters\n18 C2B · 36 DU · 18 Thrusters\n15 BMU · 30 DU · 15 Thrusters\n♀ 20/25/29 kg · ♂ 29/38/47 kg',unit:'Zeit (mm:ss)'},
-  {id:'o253',name:'25.3',type:'For Time',cat:'Open',year:'2025',desc:'For Time (Cap 20 min)\n5 Wall Walks · 50 Cal Row · 5 Wall Walks\n25 Deadlifts · 5 Wall Walks · 25 Cleans\n5 Wall Walks · 25 Snatches · 5 Wall Walks · 50 Cal Row\n♀ DL70/Cl38/Sn29 · ♂ DL102/Cl61/Sn43 kg',unit:'Zeit (mm:ss)'},
-  {id:'o261',name:'26.1',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 12 min) — Pyramide:\n20/30/40/66/40/30/20 Wall-Ball Shots\nmit je 18 Box Jump-Overs dazwischen\n♀ 6 kg/50 cm · ♂ 9 kg/60 cm',unit:'Zeit (mm:ss)'},
-  {id:'o262',name:'26.2',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 15 min) — 3 Rounds:\nRd1: 80ft DB OH Lunge + 20 Snatches + 20 Pull-ups\nRd2: gleich + C2B · Rd3: gleich + Ring MU\n♀ 16 kg · ♂ 22.5 kg',unit:'Zeit (mm:ss)'},
-  {id:'o263',name:'26.3',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 16 min) — 6 Rounds:\nRds 1-2/3-4/5-6: 12 Burpees + 12 Cleans + 12 Thrusters\n♀ 29/34/38 kg · ♂ 43/52/61 kg',unit:'Zeit (mm:ss)'},
+  {id:'o243',name:'24.3',type:'For Time',cat:'Open',year:'2024',desc:'For Time (Cap 15 min)\n5 Rds: 10 Thrusters + 10 C2B · Rest 1 min\n5 Rds: 7 Thrusters + 7 BMU · ♀ 29/43 · ♂ 43/61 kg',unit:'Zeit (mm:ss)'},
+  {id:'o251',name:'25.1',type:'AMRAP',cat:'Open',year:'2025',desc:'15 min AMRAP (Reps +3/Runde):\n3 Lateral Burpees over DB · 3 DB Hang C2OH\n30 ft Walking Lunge · ♀ 15 · ♂ 22.5 kg',unit:'Runden + Reps'},
+  {id:'o252',name:'25.2',type:'For Time',cat:'Open',year:'2025',desc:'For Time:\n21 Pull-ups · 42 DU · 21 Thrusters\n18 C2B · 36 DU · 18 Thrusters\n15 BMU · 30 DU · 15 Thrusters\n♀ 20/25/29 · ♂ 29/38/47 kg',unit:'Zeit (mm:ss)'},
+  {id:'o253',name:'25.3',type:'For Time',cat:'Open',year:'2025',desc:'For Time (Cap 20 min)\n5 Wall Walks · 50 Cal Row · 5 Wall Walks\n25 DL · 5 WW · 25 Cleans · 5 WW · 25 Sn · 5 WW · 50 Cal Row\n♀ DL70/Cl38/Sn29 · ♂ DL102/Cl61/Sn43 kg',unit:'Zeit (mm:ss)'},
+  {id:'o261',name:'26.1',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 12 min) — Pyramide:\n20/30/40/66/40/30/20 Wall-Ball Shots\nmit je 18 Box Jump-Overs · ♀ 6 kg/50 cm · ♂ 9 kg/60 cm',unit:'Zeit (mm:ss)'},
+  {id:'o262',name:'26.2',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 15 min) — 3 Rounds:\nRd1: 80ft OH Lunge + 20 Snatches + 20 Pull-ups\nRd2: + C2B · Rd3: + Ring MU · ♀ 16 · ♂ 22.5 kg',unit:'Zeit (mm:ss)'},
+  {id:'o263',name:'26.3',type:'For Time',cat:'Open',year:'2026',desc:'For Time (Cap 16 min) — 6 Rounds:\nRds 1-2/3-4/5-6: 12 Burpees + 12 Cleans + 12 Thrusters\n♀ 29/34/38 · ♂ 43/52/61 kg',unit:'Zeit (mm:ss)'},
 ];
 
 const CATS=['Alle','Girls','Hero','Benchmark','Strength','Open'];
 const YRS=['Alle','2024','2025','2026'];
 
-// ── VIEWS ─────────────────────────────────────────────────────────
 function sv(v){
   document.querySelectorAll('.vi').forEach(e=>e.classList.toggle('on',e.id==='v'+v));
   document.querySelectorAll('[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
@@ -512,8 +489,7 @@ function rb(){
   const list=document.getElementById('bl');
   if(!fil.length){list.innerHTML='<div class="em">Keine Workouts gefunden.</div>';return;}
   list.innerHTML=fil.map(w=>{
-    const pr=SCORES[w.id];
-    const io=w.cat==='Open';
+    const pr=SCORES[w.id];const io=w.cat==='Open';
     return`<div class="wc" onclick="openModal('${w.id}','bench')">
       <div class="wt"><div><div class="wn">${esc(w.name)}</div><div class="wca">${esc(w.cat)}${!io?' · '+esc(w.type):''}</div></div>
       <span class="wb ${io?'bo':'bd'}">${io?'Open '+esc(w.year):esc(w.type)}</span></div>
@@ -550,7 +526,7 @@ async function saveCW(){
   const btn=document.getElementById('btn-savewod');btn.disabled=true;
   const{error}=await sb.from('custom_wods').insert({user_id:CU.id,name:n,type:ty,description:de,unit:un});
   btn.disabled=false;
-  if(error)return smsg('addm','Fehler beim Speichern.','err');
+  if(error)return smsg('addm','Fehler: '+error.message,'err');
   smsg('addm','Workout gespeichert!','ok');
   document.getElementById('wna').value='';document.getElementById('wde').value='';
 }
@@ -640,28 +616,21 @@ async function loadAdmin(){
   const el=document.getElementById('adm-content');
   el.innerHTML='<div class="em"><span class="spin"></span>Lade…</div>';
   const{data,error}=await sb.from('profiles').select('*').order('created_at',{ascending:false});
-  if(error||!data){el.innerHTML='<div class="em">Fehler beim Laden.</div>';return;}
-  el.innerHTML=`
-    <p style="font-size:12px;color:var(--m);margin-bottom:1rem;">${data.length} Mitglieder registriert</p>
-    <div style="overflow-x:auto;">
-    <table class="admin-table">
+  if(error||!data){el.innerHTML='<div class="em">Fehler: '+(error?.message||'Unbekannt')+'</div>';return;}
+  el.innerHTML=`<p style="font-size:12px;color:var(--m);margin-bottom:1rem;">${data.length} Mitglieder</p>
+    <div style="overflow-x:auto;"><table class="admin-table">
       <thead><tr><th>Name</th><th>E-Mail</th><th>Box</th><th>Seit</th><th>Rolle</th><th>Aktionen</th></tr></thead>
-      <tbody>${data.map(u=>`
-        <tr>
-          <td style="font-weight:600;">${esc(u.first_name||'')} ${esc(u.last_name||'')}</td>
-          <td style="color:var(--m)">${esc(u.email||'')}</td>
-          <td style="color:var(--m)">${esc(u.box||'–')}</td>
-          <td style="color:var(--m);white-space:nowrap">${u.created_at?.split('T')[0]||''}</td>
-          <td><span class="tag ${u.is_admin?'tag-admin':'tag-user'}">${u.is_admin?'ADMIN':'User'}</span></td>
-          <td>${u.id!==CU.id?`
-            <div style="display:flex;gap:6px;flex-wrap:wrap;">
-              <button class="bs" onclick="toggleAdmin('${esc(u.id)}',${u.is_admin},'${esc(u.first_name)} ${esc(u.last_name)}')">${u.is_admin?'Admin entfernen':'Zum Admin'}</button>
-              <button class="bs bsd" onclick="delUser('${esc(u.id)}','${esc(u.first_name)} ${esc(u.last_name)}')">Löschen</button>
-            </div>`:'<span style="color:var(--m);font-size:11px;">Du selbst</span>'}
-          </td>
-        </tr>`).join('')}
-      </tbody>
-    </table></div>`;
+      <tbody>${data.map(u=>`<tr>
+        <td style="font-weight:600;">${esc(u.first_name||'')} ${esc(u.last_name||'')}</td>
+        <td style="color:var(--m)">${esc(u.email||'')}</td>
+        <td style="color:var(--m)">${esc(u.box||'–')}</td>
+        <td style="color:var(--m);white-space:nowrap">${u.created_at?.split('T')[0]||''}</td>
+        <td><span class="tag ${u.is_admin?'tag-admin':'tag-user'}">${u.is_admin?'ADMIN':'User'}</span></td>
+        <td>${u.id!==CU.id?`<div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="bs" onclick="toggleAdmin('${esc(u.id)}',${u.is_admin},'${esc(u.first_name)} ${esc(u.last_name)}')">${u.is_admin?'Admin entfernen':'Zum Admin'}</button>
+          <button class="bs bsd" onclick="delUser('${esc(u.id)}','${esc(u.first_name)} ${esc(u.last_name)}')">Löschen</button>
+        </div>`:'<span style="color:var(--m);font-size:11px;">Du selbst</span>'}</td>
+      </tr>`).join('')}</tbody></table></div>`;
 }
 
 async function toggleAdmin(uid,isAdmin,name){
@@ -673,7 +642,7 @@ async function toggleAdmin(uid,isAdmin,name){
 
 async function delUser(uid,name){
   if(!CP?.is_admin)return;
-  if(!confirm(`Mitglied "${name}" wirklich löschen?\nAlle Daten werden gelöscht. Nicht rückgängig machbar.`))return;
+  if(!confirm(`Mitglied "${name}" wirklich löschen?\nAlle Daten werden gelöscht.`))return;
   await sb.from('profiles').delete().eq('id',uid);
   loadAdmin();
 }
