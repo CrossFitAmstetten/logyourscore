@@ -38,7 +38,7 @@ textarea{resize:vertical;min-height:70px;}
 .msg.err{background:rgba(232,85,64,.15);color:var(--d);}
 .msg.ok{background:rgba(76,175,125,.15);color:var(--ok);}
 .r2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.mc{flex:1;max-width:920px;width:100%;margin:0 auto;padding:1.75rem 1.5rem;}
+.mc{flex:1;max-width:960px;width:100%;margin:0 auto;padding:1.75rem 1.5rem;}
 .dn{display:flex;gap:4px;margin-bottom:1.5rem;background:var(--s);border-radius:10px;padding:5px;}
 .dt{flex:1;background:none;border:none;color:var(--m);font-family:var(--fb);font-size:13px;font-weight:500;padding:9px 4px;cursor:pointer;border-radius:7px;}
 .dt.on{background:var(--a);color:#000;}
@@ -78,8 +78,14 @@ textarea{resize:vertical;min-height:70px;}
 .sr{background:var(--bg);border:1px solid var(--b);border-radius:7px;padding:9px 13px;display:flex;align-items:center;justify-content:space-between;}
 .sv{font-weight:600;font-size:14px;}.si2{font-size:11px;color:var(--m);}
 .bc{background:none;border:none;color:var(--m);cursor:pointer;font-size:20px;line-height:1;padding:2px;}
-.bs{background:none;border:1px solid var(--b2);color:var(--m);padding:5px 10px;border-radius:5px;font-family:var(--fb);font-size:12px;cursor:pointer;}
+.bs{background:none;border:1px solid var(--b2);color:var(--m);padding:5px 10px;border-radius:5px;font-family:var(--fb);font-size:11px;cursor:pointer;white-space:nowrap;}
+.bs:hover{border-color:var(--a);color:var(--a);}
 .bs.bsd{border-color:rgba(232,85,64,.4);color:var(--d);}
+.bs.bsd:hover{border-color:var(--d);}
+.bs.bsok{border-color:rgba(76,175,125,.4);color:var(--ok);}
+.bs.bsok:hover{border-color:var(--ok);}
+.bs.bswarn{border-color:rgba(232,180,64,.4);color:var(--a);}
+.bs.bswarn:hover{border-color:var(--a);}
 .ph{display:flex;align-items:center;gap:1.1rem;margin-bottom:1.5rem;}
 .pa{width:60px;height:60px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;color:#000;flex-shrink:0;}
 .pn{font-family:var(--fd);font-size:30px;letter-spacing:2px;}
@@ -93,12 +99,20 @@ textarea{resize:vertical;min-height:70px;}
 .pw-meter{height:4px;border-radius:2px;margin-top:6px;background:var(--b2);overflow:hidden;}
 .pw-bar{height:100%;border-radius:2px;transition:width .3s,background .3s;}
 .pw-hint{font-size:11px;color:var(--m);margin-top:4px;}
-.admin-table{width:100%;border-collapse:collapse;font-size:13px;}
-.admin-table th{text-align:left;padding:8px 12px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--m);border-bottom:1px solid var(--b);}
-.admin-table td{padding:10px 12px;border-bottom:1px solid var(--b);vertical-align:middle;}
+/* ADMIN */
+.admin-table{width:100%;border-collapse:collapse;font-size:12px;}
+.admin-table th{text-align:left;padding:8px 10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--m);border-bottom:1px solid var(--b);}
+.admin-table td{padding:8px 10px;border-bottom:1px solid var(--b);vertical-align:middle;}
+.admin-table tr:hover td{background:rgba(255,255,255,.02);}
 .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;}
 .tag-admin{background:rgba(232,85,64,.15);color:var(--d);}
 .tag-user{background:rgba(255,255,255,.06);color:var(--m);}
+.tag-locked{background:rgba(232,85,64,.15);color:var(--d);}
+.act-btns{display:flex;gap:5px;flex-wrap:wrap;}
+/* MEMBER SCORES MODAL */
+.mo-wide{max-width:700px;}
+.score-grid{display:grid;gap:6px;margin-top:.5rem;}
+.score-item{background:var(--bg);border:1px solid var(--b);border-radius:7px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--b2);border-top-color:var(--a);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:640px){
@@ -107,6 +121,7 @@ textarea{resize:vertical;min-height:70px;}
   .dt{font-size:11px;padding:8px 2px;}
   .nn,.abadge{display:none;}
   .r2{grid-template-columns:1fr;}
+  .admin-table th:nth-child(3),.admin-table td:nth-child(3){display:none;}
 }
 </style>
 </head>
@@ -172,6 +187,7 @@ textarea{resize:vertical;min-height:70px;}
       <button class="dt" data-v="pr" onclick="sv('pr')">👤 Profil</button>
       <button class="dt" data-v="adm" id="nav-adm" style="display:none" onclick="sv('adm')">🔧 Admin</button>
     </div>
+
     <div class="vi on" id="vbm">
       <div class="st">Benchmark WODs</div>
       <div class="sw">
@@ -182,10 +198,12 @@ textarea{resize:vertical;min-height:70px;}
       <div id="yfw" style="display:none"><div class="yf" id="yf"></div></div>
       <div class="wl" id="bl"></div>
     </div>
+
     <div class="vi" id="vcw">
       <div class="st">Eigene Workouts</div>
       <div class="wl" id="cl"></div>
     </div>
+
     <div class="vi" id="vadd">
       <div class="st">Workout anlegen</div>
       <div class="fc">
@@ -200,6 +218,7 @@ textarea{resize:vertical;min-height:70px;}
         <div id="addm"></div>
       </div>
     </div>
+
     <div class="vi" id="vpr">
       <div class="ph">
         <div class="pa" id="p-av">?</div>
@@ -209,11 +228,14 @@ textarea{resize:vertical;min-height:70px;}
       <div class="st" style="font-size:22px;margin-bottom:.75rem;">Letzte Scores</div>
       <div id="p-rec"></div>
     </div>
+
     <div class="vi" id="vadm">
       <div class="st">Admin — Mitglieder</div>
       <div id="adm-content"><div class="em"><span class="spin"></span>Lade…</div></div>
     </div>
   </div>
+
+  <!-- SCORE MODAL (eigene) -->
   <div class="overlay" id="sov" onclick="csm(event)">
     <div class="mo">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
@@ -233,6 +255,32 @@ textarea{resize:vertical;min-height:70px;}
       <div class="sl" id="msl"></div>
     </div>
   </div>
+
+  <!-- MEMBER SCORES MODAL (admin) -->
+  <div class="overlay" id="msov" onclick="if(event.target===this)this.classList.remove('on')">
+    <div class="mo mo-wide">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem;">
+        <div class="mt" id="ms-title">Scores</div>
+        <button class="bc" onclick="document.getElementById('msov').classList.remove('on')">✕</button>
+      </div>
+      <div id="ms-content"><div class="em"><span class="spin"></span>Lade…</div></div>
+    </div>
+  </div>
+
+  <!-- RESET PW MODAL (admin) -->
+  <div class="overlay" id="rpov" onclick="if(event.target===this)this.classList.remove('on')">
+    <div class="mo">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem;">
+        <div class="mt">Passwort zurücksetzen</div>
+        <button class="bc" onclick="document.getElementById('rpov').classList.remove('on')">✕</button>
+      </div>
+      <p style="color:var(--m);font-size:13px;margin-bottom:1rem;">Neues Passwort für <strong id="rp-name"></strong> setzen:</p>
+      <label>Neues Passwort</label>
+      <input type="text" id="rp-new" placeholder="Mind. 8 Zeichen" maxlength="128"/>
+      <button class="bp" id="btn-rp" onclick="doResetPw()">Passwort setzen</button>
+      <div id="rp-msg"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -241,14 +289,12 @@ textarea{resize:vertical;min-height:70px;}
 const sb = supabase.createClient(
   'https://xsbncfytrrgpltymgmpu.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzYm5jZnl0cnJncGx0eW1nbXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyOTg4MzksImV4cCI6MjA5NDg3NDgzOX0.tranbDswHl0Kp9j1EhH5Oyxvc4UVSc7KvtuZ-zSnSek',
-  {
-    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false },
-    realtime: { enabled: false }
-  }
+  { auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false }, realtime: { enabled: false } }
 );
 
 let CU=null,CP=null,CW=null,AC='Alle',AY='Alle',SCORES={};
 let loginTries=0,loginLock=0,lastScore=0;
+let adminTarget=null; // current user being edited in admin
 
 function esc(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');}
 function san(s,n){return String(s||'').trim().slice(0,n||200);}
@@ -314,10 +360,7 @@ async function doLogin(){
     return smsg('am','E-Mail oder Passwort falsch.','err');
   }
   loginTries=0;
-  if(data?.user){
-    CU=data.user;
-    await loadAndEnter();
-  }
+  if(data?.user){CU=data.user;await loadAndEnter();}
 }
 
 async function doReset(){
@@ -337,14 +380,20 @@ async function doLogout(){
 
 async function loadAndEnter(){
   if(!CU)return;
-  // Retry bis zu 3x — Trigger braucht manchmal Zeit
   for(let i=0;i<3;i++){
-    const{data,error}=await sb.from('profiles').select('*').eq('id',CU.id).single();
-    if(data){CP=data;enterApp();return;}
+    const{data}=await sb.from('profiles').select('*').eq('id',CU.id).single();
+    if(data){
+      // Check if locked
+      if(data.locked){
+        await sb.auth.signOut();
+        CU=null;
+        return smsg('am','Dein Konto wurde gesperrt. Bitte wende dich an den Admin.','err');
+      }
+      CP=data;enterApp();return;
+    }
     await new Promise(r=>setTimeout(r,1000));
   }
   smsg('am','Fehler beim Laden des Profils. Bitte nochmal einloggen.','err');
-  showScr('s-auth');
 }
 
 function enterApp(){
@@ -360,21 +409,17 @@ function enterApp(){
   showScr('s-app');sv('bm');
 }
 
-// Beim Laden: prüfen ob bereits eingeloggt
 (async()=>{
-  const{data:{session},error}=await sb.auth.getSession();
-  if(session?.user&&!error){
-    CU=session.user;
-    await loadAndEnter();
-  }
+  const{data:{session}}=await sb.auth.getSession();
+  if(session?.user){CU=session.user;await loadAndEnter();}
 })();
 
-// Token Refresh
 sb.auth.onAuthStateChange((event,session)=>{
   if(event==='TOKEN_REFRESHED'&&session)CU=session.user;
   if(event==='SIGNED_OUT'){CU=null;CP=null;SCORES={};showScr('s-auth');sat('login');}
 });
 
+// ── WOD DATA ──────────────────────────────────────────────────────
 const WODs=[
   {id:'annie',name:'ANNIE',type:'For Time',cat:'Girls',desc:'50-40-30-20-10 Reps:\nDouble-Unders\nSit-ups',unit:'Zeit (mm:ss)'},
   {id:'angie',name:'ANGIE',type:'For Time',cat:'Girls',desc:'100 Pull-ups\n100 Push-ups\n100 Sit-ups\n100 Air Squats',unit:'Zeit (mm:ss)'},
@@ -611,26 +656,108 @@ async function renderProfile(){
     </div>`).join('');
 }
 
+// ── ADMIN ─────────────────────────────────────────────────────────
 async function loadAdmin(){
   if(!CP?.is_admin)return;
   const el=document.getElementById('adm-content');
   el.innerHTML='<div class="em"><span class="spin"></span>Lade…</div>';
   const{data,error}=await sb.from('profiles').select('*').order('created_at',{ascending:false});
   if(error||!data){el.innerHTML='<div class="em">Fehler: '+(error?.message||'Unbekannt')+'</div>';return;}
-  el.innerHTML=`<p style="font-size:12px;color:var(--m);margin-bottom:1rem;">${data.length} Mitglieder</p>
-    <div style="overflow-x:auto;"><table class="admin-table">
-      <thead><tr><th>Name</th><th>E-Mail</th><th>Box</th><th>Seit</th><th>Rolle</th><th>Aktionen</th></tr></thead>
-      <tbody>${data.map(u=>`<tr>
-        <td style="font-weight:600;">${esc(u.first_name||'')} ${esc(u.last_name||'')}</td>
-        <td style="color:var(--m)">${esc(u.email||'')}</td>
-        <td style="color:var(--m)">${esc(u.box||'–')}</td>
-        <td style="color:var(--m);white-space:nowrap">${u.created_at?.split('T')[0]||''}</td>
-        <td><span class="tag ${u.is_admin?'tag-admin':'tag-user'}">${u.is_admin?'ADMIN':'User'}</span></td>
-        <td>${u.id!==CU.id?`<div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="bs" onclick="toggleAdmin('${esc(u.id)}',${u.is_admin},'${esc(u.first_name)} ${esc(u.last_name)}')">${u.is_admin?'Admin entfernen':'Zum Admin'}</button>
-          <button class="bs bsd" onclick="delUser('${esc(u.id)}','${esc(u.first_name)} ${esc(u.last_name)}')">Löschen</button>
-        </div>`:'<span style="color:var(--m);font-size:11px;">Du selbst</span>'}</td>
-      </tr>`).join('')}</tbody></table></div>`;
+
+  // Score counts
+  const{data:scoreCounts}=await sb.from('scores').select('user_id');
+  const counts={};
+  (scoreCounts||[]).forEach(s=>{counts[s.user_id]=(counts[s.user_id]||0)+1;});
+
+  el.innerHTML=`
+    <p style="font-size:12px;color:var(--m);margin-bottom:1rem;">${data.length} Mitglieder registriert</p>
+    <div style="overflow-x:auto;">
+    <table class="admin-table">
+      <thead><tr>
+        <th>Name</th><th>E-Mail</th><th>Box</th><th>Seit</th>
+        <th>Scores</th><th>Status</th><th>Aktionen</th>
+      </tr></thead>
+      <tbody>${data.map(u=>`
+        <tr>
+          <td style="font-weight:600;">${esc(u.first_name||'')} ${esc(u.last_name||'')}</td>
+          <td style="color:var(--m);font-size:11px;">${esc(u.email||'')}</td>
+          <td style="color:var(--m)">${esc(u.box||'–')}</td>
+          <td style="color:var(--m);white-space:nowrap;font-size:11px;">${u.created_at?.split('T')[0]||''}</td>
+          <td style="color:var(--a);font-weight:600;">${counts[u.id]||0}</td>
+          <td>
+            ${u.is_admin?'<span class="tag tag-admin">ADMIN</span>':
+              u.locked?'<span class="tag tag-locked">GESPERRT</span>':
+              '<span class="tag tag-user">User</span>'}
+          </td>
+          <td>
+            ${u.id!==CU.id?`
+              <div class="act-btns">
+                <button class="bs" onclick="viewScores('${esc(u.id)}','${esc(u.first_name)} ${esc(u.last_name)}')">📊 Scores</button>
+                <button class="bs bswarn" onclick="openResetPw('${esc(u.id)}','${esc(u.first_name)} ${esc(u.last_name)}')">🔑 PW</button>
+                <button class="bs ${u.locked?'bsok':'bswarn'}" onclick="toggleLock('${esc(u.id)}',${!!u.locked},'${esc(u.first_name)} ${esc(u.last_name)}')">${u.locked?'🔓 Entsperren':'🔒 Sperren'}</button>
+                <button class="bs" onclick="toggleAdmin('${esc(u.id)}',${!!u.is_admin},'${esc(u.first_name)} ${esc(u.last_name)}')">${u.is_admin?'Admin ent.':'→ Admin'}</button>
+                <button class="bs bsd" onclick="delUser('${esc(u.id)}','${esc(u.first_name)} ${esc(u.last_name)}')">🗑 Löschen</button>
+              </div>`:'<span style="color:var(--m);font-size:11px;">Du selbst</span>'}
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+// Scores eines Mitglieds anzeigen
+async function viewScores(uid,name){
+  if(!CP?.is_admin)return;
+  document.getElementById('ms-title').textContent=name+' — Scores';
+  document.getElementById('ms-content').innerHTML='<div class="em"><span class="spin"></span>Lade…</div>';
+  document.getElementById('msov').classList.add('on');
+  const{data}=await sb.from('scores').select('*').eq('user_id',uid).order('date',{ascending:false});
+  if(!data?.length){
+    document.getElementById('ms-content').innerHTML='<div class="em">Keine Scores vorhanden.</div>';
+    return;
+  }
+  document.getElementById('ms-content').innerHTML=`
+    <p style="font-size:12px;color:var(--m);margin-bottom:1rem;">${data.length} Scores gesamt</p>
+    <div class="score-grid">${data.map(s=>`
+      <div class="score-item">
+        <div>
+          <div style="font-weight:600;font-size:13px;">${esc(s.wod_name)}</div>
+          <div style="font-size:11px;color:var(--m)">${esc(s.date)}${s.note?' · '+esc(s.note):''}</div>
+        </div>
+        <div style="font-weight:600;color:var(--a)">${esc(s.value)}</div>
+      </div>`).join('')}
+    </div>`;
+}
+
+// Passwort zurücksetzen (öffnet Modal)
+function openResetPw(uid,name){
+  if(!CP?.is_admin)return;
+  adminTarget=uid;
+  document.getElementById('rp-name').textContent=name;
+  document.getElementById('rp-new').value='';
+  document.getElementById('rp-msg').textContent='';
+  document.getElementById('rpov').classList.add('on');
+}
+
+async function doResetPw(){
+  if(!CP?.is_admin||!adminTarget)return;
+  const pw=document.getElementById('rp-new').value;
+  if(!pw||pw.length<8)return smsg('rp-msg','Passwort muss mind. 8 Zeichen haben.','err');
+  setBtn('btn-rp',true);
+  // Update password via admin SQL function
+  const{error}=await sb.rpc('admin_set_password',{target_id:adminTarget,new_password:pw});
+  setBtn('btn-rp',false,'Passwort setzen');
+  if(error)return smsg('rp-msg','Fehler: '+error.message,'err');
+  smsg('rp-msg','Passwort erfolgreich gesetzt!','ok');
+  setTimeout(()=>document.getElementById('rpov').classList.remove('on'),2000);
+}
+
+// Sperren / Entsperren
+async function toggleLock(uid,isLocked,name){
+  if(!CP?.is_admin)return;
+  const action=isLocked?'entsperren':'sperren';
+  if(!confirm(`Mitglied "${name}" wirklich ${action}?`))return;
+  await sb.from('profiles').update({locked:!isLocked}).eq('id',uid);
+  loadAdmin();
 }
 
 async function toggleAdmin(uid,isAdmin,name){
@@ -642,7 +769,7 @@ async function toggleAdmin(uid,isAdmin,name){
 
 async function delUser(uid,name){
   if(!CP?.is_admin)return;
-  if(!confirm(`Mitglied "${name}" wirklich löschen?\nAlle Daten werden gelöscht.`))return;
+  if(!confirm(`Mitglied "${name}" wirklich löschen?\nAlle Scores und Workouts werden gelöscht.`))return;
   await sb.from('profiles').delete().eq('id',uid);
   loadAdmin();
 }
